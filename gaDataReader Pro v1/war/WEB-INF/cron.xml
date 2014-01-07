@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+    <!--  <cron>
+    <url>/fetchV2EventData.do</url>
+    	<description>fetch V2 Event Data And Persist</description>
+    	<schedule>every 120 minutes</schedule>
+  </cron>
+  
+     <cron>
+    <url>/fetchSBEventData.do</url>
+    	<description>fetch GA Event Data And Persist</description>
+    	<schedule>every 3 hours</schedule>
+  </cron>
+  
+  
+  <cron>
+    <url>/fetchBetaSBData.do</url>
+    	<description>fetch live GA Event Data And Persist</description>
+    	<schedule>every 30 mins synchronized</schedule>
+  </cron>
+   <cron>
+    <url>/fetchAccountLoadData.do</url>
+    	<description>fetch live GA Account Load Data And Persist</description>
+    	<schedule>every 4 hours synchronized</schedule>
+  </cron>--> 
+  
+  <cron>
+    <url>/fetchFilteredData.do</url>
+    	<description>Temp Cron For 7 dimension live</description>
+    	<schedule>every 1 hours</schedule>
+  </cron> 
+  
+  <cron>
+    <url>/gaDataEmailService.do</url>
+    	<description>raw data emailer</description>
+    	<schedule>every day 10:00</schedule>
+  </cron>
+</cronentries>

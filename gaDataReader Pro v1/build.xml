@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="gaDataService" default="minify-js-css" basedir=".">
+
+	<property name="yuicompressor.dir" value="./compress" />
+		<property name="js-css-min.dir" value="./compress/compressedfile"/>
+		<property name="js.dir" value="js"/>
+		<property name="css.dir" value="css"/>
+	  <path id="project.class.path">
+	     <fileset dir="${lib-dir}">
+	       <include name="**/*.jar"/>
+	     </fileset>
+	     <fileset dir="${common-lib}">
+	       <include name="**/*.jar"/>
+	     </fileset>
+	  	<fileset dir="${shared-lib}">
+	  		<include name="**/*.jar"/>
+	    </fileset>
+	  </path>
+	  <path id="yuicompressor.classpath">
+	         <fileset dir="WEB-INF/lib">
+	          <include name="*.jar" /> 
+	         </fileset>
+	   </path> 
+ <target name="minify-js-css" description="Minifiy a set of files">
+	             <taskdef name="yuicompress" classname="com.yahoo.platform.yui.compressor.YUICompressTask">
+	                 <classpath>
+	                     <path refid="yuicompressor.classpath"/>
+	                 </classpath>
+	             </taskdef>
+	             <delete dir="${js-css-min.dir}"/>
+	             <mkdir dir="${js-css-min.dir}" />
+	             <yuicompress linebreak="300" warn="false" munge="yes" preserveallsemicolons="true"
+	                 outputfolder="${js-css-min.dir}" >
+	                 <fileset dir="${js.dir}" >
+	                     <include name="**/*.js" />
+	                 	 <exclude name="dhtmlSuite-calendar.js"/>  
+	                 </fileset>
+	             </yuicompress>
+	 	 		 <yuicompress linebreak="300" warn="false" munge="yes" preserveallsemicolons="true"
+	 		                 outputfolder="${js-css-min.dir}" >
+	 		                 <fileset dir="${css.dir}" >
+	 		                 	<include name="**/*.css" />
+	 		                 </fileset>
+	 		             </yuicompress>
+		          		 
+	 	
+	 	 			 <concat destfile="${js-css-min.dir}/bundle.js">
+		 		 		<filelist dir="${js-css-min.dir}" files="reportProcessor,gaVisual.js"/>
+			 	     </concat>
+	 				<!-- <concat destfile="${js-css-min.dir}/JQ.js">
+	 			 	    <filelist dir="${js-css-min.dir}" files="jquery-1.3.2.min.js,splitter.js,drag_iutil.js,drag_idrag.js,datepicker.js,eye.js,utils.js,layout.js,action.js,feedbackValidator.js,feedbackMessageAction.js"/>
+	 				 </concat>-->
+	 				<delete>
+						<fileset dir="${js-css-min.dir}" includes="*.js" excludes="bundle.js,JQ.js"/>
+						   <!-- <include name="**/*.js"/>
+						    <exclude name="bundle.js"/>
+						</fileset>  -->
+					</delete>
+		 			<concat destfile="${js-css-min.dir}/bundle.css">
+	 		 				<filelist dir="${js-css-min.dir}" files="reset.css,style.css,datepicker.css,layout.css,callDelayWindowstyle.css,theme_style.css"/>
+		 	        </concat>
+	 				<delete>
+						<fileset dir="${js-css-min.dir}" includes="*.css" excludes="bundle.css"/>
+					</delete>
+	 	
+	 			 
+	 	            
+	      </target>
+	
+    <!-- Remove classes directory for clean build -->
+    <target name="clean"
+      description="Prepare for clean build">
+      <delete dir="WEB-INF/classes"/>
+      <mkdir  dir="WEB-INF/classes"/>
+    </target>
+	
+	</project>
