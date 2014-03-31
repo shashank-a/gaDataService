@@ -29,6 +29,7 @@ public class GADataService {
 	public void gaDataService( String dateFrom,String dimensions, String tableId, String filter)
 	{GaData gaData=null;
 	ArrayList<ArrayList<?>> rowData=null;
+	ArrayList<String> gaJson=null;
 	int z=0;
 		try {
 			
@@ -47,6 +48,8 @@ public class GADataService {
 				System.out.println("Ga Data --ArrayList");
 			if(list.size()>0)
 			{	rowData=new ArrayList<ArrayList<?>>();
+					//gaJson=new ArrayList<String>();
+			
 				while(z<list.size())
 				{
 					gaData=list.get(z);
@@ -57,21 +60,14 @@ public class GADataService {
 					ArrayList<ArrayList<String>> dataSet=new ArrayList(gaData.getRows());
 					System.out.println("batch size::"+dataSet.size());
 					rowData.addAll(dataSet);
+					//gaJson.add(gaData.toString());
+					//dataSet=null;
 					}
 				}
 				System.out.println("Row Data Size::"+rowData.size());
-				if(rowData.size()>0)
-				{
-				GaDatastoreService.storeGAData(dateFrom,rowData,dimensions,GAUtil.getkeyElementFromDimension(dimensions), tableId);}
-				else
-				{
-					System.out.println("No Data To Store");
-				}
-				
+				//String totalJson=convertObjectToJson(gaJson);
 			}
-			else{
-					System.out.println("NO data Fetched");
-			}
+			
 			
 			z=0;
 		} catch (JsonGenerationException e) {

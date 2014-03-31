@@ -35,7 +35,7 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.springframework.web.servlet-3.0.3.RELEASE.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-dataformat-csv-2.1.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/ActiveResponseUtil.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/json-20070829.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/Docfacto2.4.8.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

@@ -180,6 +180,25 @@ public class CsvUtil {
 
 		return csvContent.toString();
 	}
+	
+	public static String formatCsvfromArray(
+			ArrayList csvList, char csvSeparator, Charset charset) {
+		// Prepare.
+				StringBuilder csvContent = new StringBuilder();
+
+				// Process records.
+				for (Object csvRecord : csvList) {
+					if (csvRecord != null) {
+						
+						csvContent.append(formatCsvRecord((ArrayList)csvRecord, csvSeparator));
+					}
+
+					// Add default line separator.
+					csvContent.append(DEFAULT_LINE_SEPARATOR);
+	}
+				return csvContent.toString();	
+	}
+
 
 	/**
 	 * CSV record formatter. Convert a List of Objects representing the fields

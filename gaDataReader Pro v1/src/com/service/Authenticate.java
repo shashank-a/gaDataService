@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -31,7 +32,10 @@ import com.google.api.client.googleapis.*;
 import com.google.api.client.googleapis.auth.clientlogin.*;
 import com.google.api.client.googleapis.json.*;
 import com.google.api.client.http.*;
-import com.google.cloud.sql.jdbc.GoogleDataSource;
+
+import com.util.DataStoreManager;
+import com.util.GAUtil;
+import com.util.ZipData;
 
 import java.io.*;
 
@@ -116,6 +120,7 @@ public class Authenticate
 		}
 		public void gaQurey(GoogleTokenResponse response,String accessToken,String dateFrom,String dateTo,boolean flag,ArrayList<GaData> list,String dimensions, String tableId, String filter)
 		{
+			System.out.println( response+":"+ accessToken+":"+ dateFrom+":"+ dateTo+":"+ flag+":"+ list+":"+ dimensions+":"+ tableId+":"+ filter);
 			if(tableId==null || tableId.equals(""))
 			{
 				tableId=TABLE_ID;
@@ -153,11 +158,21 @@ public class Authenticate
 					Get apiQuery = analytics.data().ga().get("ga:"+tableId,dateFrom,dateTo,"ga:visits");
 					apiQuery.setDimensions( dimensions );
 					apiQuery.setMetrics("ga:totalEvents");
-					apiQuery.setFilters(filter);
+					//apiQuery.setFilters(filter);
 					System.out.println("setting sort");
+					String keyElement=GAUtil.getkeyElementFromDimension(dimensions);
+					String key="GaDataObject_"+"SBLive"+"_"+dateFrom.replaceAll("-", "")+"_"+keyElement;
+					int batchSize=1;
+					int counter=1;
+					byte [] compressData=null;
+					String batchKey;
+					ArrayList<String> dimArray= new ArrayList<String>();
+					HashMap <String,Object> gaDataKeyMap=new HashMap<String,Object>();
+					
 					
 					while(k<=z)
 						{
+						
 					System.out.println("max result");
 					apiQuery.setStartIndex(k+1);
 					apiQuery.setMaxResults(max );
@@ -165,10 +180,44 @@ public class Authenticate
 					System.out.println(apiQuery.toString());
 					gaData=apiQuery.execute();
 					list.add(gaData);
+					
 					z=gaData.getTotalResults();
 					k=k+max;
-					System.out.println("Looping for:::::: "+(k+1));
+					batchSize=(z/10000)+1;
 					
+					if(gaData!=null && counter==1)
+					{
+						gaDataKeyMap.put("Date",dateFrom);
+						gaDataKeyMap.put("Dimension",dimensions);
+						
+						for(int i=1;i<=batchSize;i++)
+						{
+							batchKey=key+"_Part_"+(i)+"||"+batchSize;
+							dimArray.add(batchKey);
+						}
+						gaDataKeyMap.put("keyList", dimArray);
+						compressData=ZipData.compressBytes(GaDatastoreService.convertObjectToJson(gaDataKeyMap).toString());
+						String masterKey="GaDataObject_"+"SBLIVE"+"_"+dateFrom.replaceAll("-", "")+"_"+keyElement;
+						System.out.println("Writing For:::::"+masterKey);
+						DataStoreManager.set(masterKey,dateFrom.replaceAll("-", ""),compressData);
+						compressData=null;
+						
+					}
+					
+					System.out.println("Looping for:::::: "+(k+1));
+					//Write to Data store
+					
+					
+					ArrayList<ArrayList<?>> rows=new ArrayList(gaData.getRows());
+					compressData=ZipData.compressBytes(GaDatastoreService.convertObjectToJson(rows).toString());
+					System.out.println("Writing For:::::"+dimArray.get(counter-1));
+					DataStoreManager.set(dimArray.get(counter-1),dateFrom.replaceAll("-", ""),compressData);
+					
+			    	System.out.println("Setting Data into Caches");
+			    	System.out.println("Key:::"+key);
+			    	batchKey=null;
+			    	rows=null;
+			    	counter++;
 					}
 					System.out.println("list size::"+list.size());
 					System.out.println("GA account data retrieved++"+gaData.getTotalResults()+"...total of  all results::::::"+gaData.getTotalsForAllResults());
@@ -197,6 +246,7 @@ public class Authenticate
 			{
 				// TODO Auto-generated method stub
 				System.out.println("Api Error  in query");
+				System.out.println(e);
 				
 			}
 		

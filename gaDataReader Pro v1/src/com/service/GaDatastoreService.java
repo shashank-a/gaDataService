@@ -3,9 +3,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -24,9 +22,9 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.acti.cache.serverresource.MemCacheServiceHelper;
 import com.util.DataStoreManager;
 import com.util.ZipData;
-import com.acti.cache.serverresource.MemCacheServiceHelper;
 
 public class GaDatastoreService
 {	
@@ -62,10 +60,10 @@ public class GaDatastoreService
 	    		//march 18 test
 	    		byte [] compressData=ZipData.compressBytes(convertObjectToJson(rows).toString());
 	    		System.out.println("DataCompressed");
-		    	  MemCacheServiceHelper.setInMemCache(key,dimension,compressData);
+		    	MemCacheServiceHelper.setInMemCache(key,dimension,compressData);
 	    		System.out.println("DataSetInto Cache");
 	    		//setting into datastore
-	    	  DataStoreManager.set(key,dimension,compressData);
+	    		DataStoreManager.set(key,dimension,compressData);
 	    	  
 	    	  
 	    	  
@@ -91,19 +89,12 @@ public class GaDatastoreService
 	    	ByteArrayInputStream bis=null;
 	    	ObjectInput in = null;
 	    	byte[] rowDataInByte=new byte[0];
+	    	HashMap<String, Object> hm=null;
 	    	try {
 	    	 
-	    		System.out.println("#######Fetching Data Form  MemCache#######");
-	    		HashMap<Object,Object> cacheMap=MemCacheServiceHelper.getCacheContents(key);
-	    		if(cacheMap!=null && cacheMap.get("value")!=null)
-	    		{
-	    			System.out.println(cacheMap.get("value"));
-	    			rowDataInByte=(byte[])cacheMap.get("value");
-	    		}
-	    		else{
+	    		
 	    		System.out.println("#######Fetching Data Form  Data Store#######");
 	    		rowDataInByte =DataStoreManager.get(key,dimension);
-	    		}
 	    	  
 	    	 // System.out.println("cache data::"+appcachemanager.get(key,dimension));
 	    	  
@@ -112,9 +103,11 @@ public class GaDatastoreService
 	    	  {
 		    	  if(rowDataInByte.length>1)
 		    	  {	System.out.println("byte array not null");
-		    	  	
-			    	  rowData=(ArrayList<ArrayList<?>>)convertJsonToObject(ZipData.extractBytes(rowDataInByte));
-			   // 	  rowData1=(ArrayList<ArrayList<?>>)convertJsonToObject(ZipData.extractBytes((byte[])appcachemanager.get(key,dimension)));
+		    	   hm = (HashMap<String,Object>)convertJsonToHashMap(ZipData.extractBytes(rowDataInByte));
+		    	   rowData=(ArrayList<ArrayList<?>>)hm.get("gaDataList");
+		    		  System.out.println("list data received..."+rowData.size());
+			    	  //rowData=(ArrayList<ArrayList<?>>)convertJsonToObject(ZipData.extractBytes(rowDataInByte));
+		    	  	//rowData1=(ArrayList<ArrayList<?>>)convertJsonToObject(ZipData.extractBytes((byte[])appcachemanager.get(key,dimension)));
 			    	  //System.out.println(rowData1);
 		    	  }
 	    	  }
@@ -164,8 +157,105 @@ public class GaDatastoreService
 			return rowDataArrayList;
 		}
 	    
+	    public static HashMap<String,Object> convertJsonToHashMap( String obj )	throws JsonParseException ,
+		JsonMappingException ,
+		IOException
+		{
+	    	HashMap<String,Object> gaDataMap = mapper.readValue( obj ,
+			new TypeReference <HashMap<String,Object>>()
+			{
+			} );
+			return gaDataMap;
+		}
 	    
+	    public static ArrayList <String> convertJsonToObjectArray( String obj )	throws JsonParseException ,
+		JsonMappingException ,
+		IOException
+		{
+			ArrayList <String> rowDataArrayList = mapper.readValue( obj ,
+			new TypeReference <ArrayList <String>>()
+			{
+			} );
+			return rowDataArrayList;
+		}
 	    
+	    // methods to read Datastore in batch operation...
+	    
+	    public static ArrayList<ArrayList<?>> fetchGADataBatch(String dateFrom, String dimension, String keyElement, String app) throws IOException, ClassNotFoundException
+	    {
+	    	//ArrayList<ArrayList<?>> rowData=null;
+	    	ArrayList<ArrayList<?>> rows=null;
+	    	ArrayList<ArrayList<?>> list=new ArrayList<ArrayList<?>>();
+	    	ArrayList<String> keyList=null;
+	    	
+	    	HashMap<String,Object> hm=null;
+	    	
+	    	byte[] rowDataInByte=new byte[0];
+	    	try {
+	    	String key="GaDataObject_"+app+"_"+dateFrom.replaceAll("-", "")+"_"+keyElement;
+	    		//System.out.println("#######Fetching Data Form  MemCache#######"+key);
+//	    		HashMap<Object,Object> cacheMap=MemCacheServiceHelper.getCacheContents(key);
+//	    		if(cacheMap!=null && cacheMap.get("value")!=null)
+//	    		{
+//	    			//System.out.println(cacheMap.get("value"));
+//	    			rowDataInByte=(byte[])cacheMap.get("value");
+//	    		}
+//	    		else{
+	    		System.out.println("#######Fetching Data Form  Data Store#######"+key);
+	    		rowDataInByte =DataStoreManager.get(key,dateFrom.replaceAll("-", ""));
+	    		
+	    	 // System.out.println("cache data::"+appcachemanager.get(key,dimension));
+	    	  
+	    	  //System.out.println("rowDataInByte"+rowDataInByte);
+	    	  if(rowDataInByte!=null)
+	    	  {
+		    	  if(rowDataInByte.length>1)
+		    	  {	System.out.println("byte array not null");
+		    	  	
+		    	  hm=(HashMap<String,Object>)convertJsonToHashMap(ZipData.extractBytes(rowDataInByte));
+		    	  	//rowData1=(ArrayList<ArrayList<?>>)convertJsonToObject(ZipData.extractBytes((byte[])appcachemanager.get(key,dimension)));
+			    	  //System.out.println(rowData1);
+		    	  rowDataInByte=null;
+				    	  if(hm.get("gaDataList")==null)
+				    	  {
+				    	  byte[] byparts=new byte[0];
+					    	  if(hm!=null)
+					    	  {
+					    		  System.out.println("Fetching KeyLIst Data from DataStore...");
+					    		   keyList=(ArrayList<String>) hm.get("keyList");
+					    		   for(String k:keyList)
+					    		   {
+					    			   byparts=DataStoreManager.get(k,dateFrom.replaceAll("-", ""));
+					    			   rows=convertJsonToObject(ZipData.extractBytes(byparts));
+					    			   list.addAll(rows);
+					    		   }
+					    		   hm.put("gaDataList", list);
+					    		   hm.put("length",list.size());
+					    		   byte [] compressData=ZipData.compressBytes(convertObjectToJson(hm).toString());
+					    		   System.out.println("DataCompressed");
+					    		   //MemCacheServiceHelper.setInMemCache(key,dimension,compressData);
+					    		   DataStoreManager.set(key,dateFrom.replaceAll("-", ""),compressData);
+					    		   System.out.println("Data Written in Cache....."+key);
+					    	  }
+				    	  }
+				    	  else
+				    	  {
+				    		  list=(ArrayList<ArrayList<?>>)hm.get("gaDataList");
+				    		  System.out.println("list data received..."+list.size());
+						  }
+		    	  }
+		    	  
+	    	  }
+	    	} 
+	    	catch(Exception e)
+	    	{System.out.println("catched");
+	    		printStackTrace(e);
+	    		
+	    	}
+	    	
+	    	return list;
+	    			
+	    }
 	    
 
 }

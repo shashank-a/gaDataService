@@ -715,19 +715,21 @@ console.log(index);	  dataset=getUniqueDimensionFromGAData(jsonData,index);
  	function drawAgentDetail()
  	{
  		
-  		columnData=agentActionSummary();
+//  		columnData=agentActionSummary();
   		var data = new google.visualization.DataTable();
-  		data.addColumn("string", "Agent Email");
-        for(c in columnData)
+  		//data.addColumn("string", "Agent Email");
+  		var arr[]=JSON.parse(localStorage.getItem("rowdata"))[0];
+        for(c in arr)
   			{
         	if(columnData[c]!="Agent Email" )
 	  			{
-	        		data.addColumn("number", columnData[c]);
+	        		data.addColumn("string", columnData[c]);
 	        		console.log(columnData[c]);
 	  			}
   			}
         
         console.log("Adding Rows");
+        filteredData=JSON.parse(localStorage.getItem("rowdata"));
   		data.addRows(filteredData);
   		createAgentDetailsCSVReport();
   		var dataView1 = new google.visualization.DataView(data);

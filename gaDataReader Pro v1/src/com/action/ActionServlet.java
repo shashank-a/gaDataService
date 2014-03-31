@@ -7,12 +7,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.TimeZone;
+import org.json.CDL;
+import org.json.JSONArray;
+
 import com.util.StringUtil;
 
 
@@ -43,6 +50,7 @@ import com.service.GaDatastoreService;
 import com.service.GaReportProcessor;
 import com.util.AppCacheManager;
 import com.util.AppMemCacheManager;
+import com.util.DataStoreManager;
 import com.util.GAUtil;
 import com.util.ZipData;
 
@@ -107,7 +115,7 @@ public class ActionServlet {
 			 dimensions=resourceBundle.getString(dimensions);
 			if(dateFrom!=null)
 			{System.out.println("Fetching row data");
-				rowData=GaDatastoreService.fetchGAData(dateFrom,dimensions, GAUtil.getkeyElementFromDimension(dimensions),tableId);
+				//rowData=GaDatastoreService.fetchGAData(dateFrom,dimensions, GAUtil.getkeyElementFromDimension(dimensions),tableId);
 			
 				if(rowData==null)
 				{
@@ -154,7 +162,7 @@ public class ActionServlet {
 								ArrayList<ArrayList<String>> dataSet=new ArrayList(gaData.getRows());
 								rowData.addAll(dataSet);
 							}
-							GaDatastoreService.storeGAData(dateFrom,rowData, dimensions, GAUtil.getkeyElementFromDimension(dimensions), tableId);
+							//GaDatastoreService.storeGAData(dateFrom,rowData, dimensions, GAUtil.getkeyElementFromDimension(dimensions), tableId);
 							
 				}
 				if(rowData!=null)
@@ -163,17 +171,15 @@ public class ActionServlet {
 				 rowData=gaService.escapeGAData(rowData,0);
 					if(rawDataFlag==null)
 					{
-						ArrayList<AccountDetails> accountDetails=(new GaReportProcessor()).getAccountDataFromGaData(rowData);
+						/*ArrayList<AccountDetails> accountDetails=(new GaReportProcessor()).getAccountDataFromGaData(rowData);
 						System.out.println("accountDetails::::"+accountDetails.size());
-						req.setAttribute("accountData", accountDetails);	
+						req.setAttribute("accountData", accountDetails);*/	
 					}else
 					{
 						req.setAttribute("dataTable", rowData);
 					}
 					
 					req.setAttribute("dimensions", (dimensions.replaceAll("ga:","")).split(","));
-					
-					
 					
 				}
 			}
@@ -262,7 +268,7 @@ public class ActionServlet {
 			 GaReportProcessor gaService= new GaReportProcessor();
 			 
 			 System.out.println("dimensions:::"+dimensionsSB);
-			 sbRowData=GaDatastoreService.fetchGAData(date,dimensionsSB,GAUtil.getkeyElementFromDimension(dimensionsSB),mode);
+			// sbRowData=GaDatastoreService.fetchGAData(date,dimensionsSB,GAUtil.getkeyElementFromDimension(dimensionsSB),mode);
 			 System.out.println("Sb Row Data Received");
 			 
 			 ArrayList<ArrayList<?>> compiledData= null;
@@ -314,9 +320,6 @@ public class ActionServlet {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} 
 		
 		return viewPage;
@@ -325,24 +328,15 @@ public class ActionServlet {
 	
 	
 	@RequestMapping("/getAcccountDetails.do")
-	public String getAccountDetails(HttpServletRequest req,HttpServletResponse res)
+	public String getAccountDetails(HttpServletRequest req,HttpServletResponse res) throws IOException
 	{
-			try {
-				String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2";
-				System.out.println("dateFrom::;"+req.getParameter("dateFrom"));
-				System.out.println("category::;"+req.getParameter("category").trim());
-				
-				req.setAttribute("accNo",req.getParameter("category").trim());
-				//new GaReportProcessor().getEventDescriptionForCategory(GaDatastoreService.fetchGAData(req.getParameter("dateFrom").trim()), req.getParameter("category").trim());
-				req.setAttribute("agentData", new GaReportProcessor().getEventDescriptionForCategory(GaDatastoreService.fetchGAData(req.getParameter("dateFrom").trim(), dimensions, GAUtil.getkeyElementFromDimension(dimensions), null), req.getParameter("category").trim()));
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2";
+			System.out.println("dateFrom::;"+req.getParameter("dateFrom"));
+			System.out.println("category::;"+req.getParameter("category").trim());
+			
+			req.setAttribute("accNo",req.getParameter("category").trim());
+			//new GaReportProcessor().getEventDescriptionForCategory(GaDatastoreService.fetchGAData(req.getParameter("dateFrom").trim()), req.getParameter("category").trim());
+			//req.setAttribute("agentData", new GaReportProcessor().getEventDescriptionForCategory(GaDatastoreService.fetchGAData(req.getParameter("dateFrom").trim(), dimensions, GAUtil.getkeyElementFromDimension(dimensions), null), req.getParameter("category").trim())); 
 			return "agentWiseData";
 			
 	}
@@ -457,7 +451,7 @@ public class ActionServlet {
 			 GaReportProcessor gaService= new GaReportProcessor();
 			 dimensionsSB="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue3,ga:customVarValue4";
 			 System.out.println("dimensions:::"+dimensionsSB);
-			 sbRowData=GaDatastoreService.fetchGAData(date,dimensionsSB,GAUtil.getkeyElementFromDimension(dimensionsSB), "SBLive");
+			// sbRowData=GaDatastoreService.fetchGAData(date,dimensionsSB,GAUtil.getkeyElementFromDimension(dimensionsSB), "SBLive");
 			 if(sbRowData!=null)
 			 {
 			 System.out.println("Sb Row Data Received"+sbRowData.size());
@@ -487,9 +481,6 @@ public class ActionServlet {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} 
 		
 		return "callHistoryReport";
@@ -497,7 +488,7 @@ public class ActionServlet {
 	
 	
 	@RequestMapping("/getEventDetails.do")
-	public String getEventDetails(HttpServletRequest req,HttpServletResponse res)
+	public String getEventDetails(HttpServletRequest req,HttpServletResponse res) throws ClassNotFoundException
 	{
 		String date=req.getParameter("dateFrom");
 		String page=req.getParameter("page");
@@ -563,11 +554,7 @@ public class ActionServlet {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} 
-		
 		return viewPage;
 		
 	}
@@ -612,7 +599,7 @@ public class ActionServlet {
 			 GaReportProcessor gaService= new GaReportProcessor();
 			 dimensionsSB="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3";
 			 System.out.println("dimensions:::"+dimensionsSB);
-			 sbRowData=GaDatastoreService.fetchGAData(date,dimensionsSB,GAUtil.getkeyElementFromDimension(dimensionsSB),mode);
+			// sbRowData=GaDatastoreService.fetchGAData(date,dimensionsSB,GAUtil.getkeyElementFromDimension(dimensionsSB),mode);
 			 System.out.println("Sb Row Data Received");
 			 
 			 ArrayList<ArrayList<?>> compiledData= new ArrayList<ArrayList<?>>();
@@ -636,11 +623,7 @@ public class ActionServlet {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} 
-		
 	}	
 	
 	
@@ -679,7 +662,7 @@ public class ActionServlet {
 			 GaReportProcessor gaService= new GaReportProcessor();
 			 dimensionsSB="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
 			 System.out.println("dimensions:::"+dimensionsSB);
-			 v2RowData=GaDatastoreService.fetchGAData(date,dimensionsSB,GAUtil.getkeyElementFromDimension(dimensionsSB),mode);
+			 //v2RowData=GaDatastoreService.fetchGAData(date,dimensionsSB,GAUtil.getkeyElementFromDimension(dimensionsSB),mode);
 			 System.out.println("Sb Row Data Received");
 			 
 			 //ArrayList<ArrayList<?>> compiledData= new ArrayList<ArrayList<?>>();http://mvcsampledemo.appspot.com/
@@ -695,9 +678,6 @@ public class ActionServlet {
 			 	
 			 }
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
@@ -741,6 +721,255 @@ public class ActionServlet {
         sw.flush();
         return sw.toString();
     }
+    
+    @RequestMapping("/getJsonData.do")
+    @ResponseBody
+	public void getJsonData(HttpServletRequest req,HttpServletResponse res)
+	{
+		String dateFrom=req.getParameter("dateFrom");
+		
+			try {
+				ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
+				System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
+				System.out.println("target->> /get JSOn Data.do ");
+				String date=null;
+				if(dateFrom==null)
+				{Calendar cal = Calendar.getInstance();
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
+				System.out.println(sdf.format(cal.getTime())+"::timeZone::"+sdf.getTimeZone());
+				date=(sdf.format(cal.getTime())).toString();
+				}
+				else
+				{
+					date =dateFrom;
+				}
+				
+				String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
+				
+				GaData gaData=null;
+				ArrayList<ArrayList<?>> rowData=null;
+				ArrayList<String> gaJson=null;
+				int z=0;
+					
+						//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
+						ArrayList<GaData> list=new ArrayList<GaData>();
+						Authenticate  authenticate =new Authenticate();
+						
+						String temptoken=(authenticate.loadData(new GoogleCredential())).getRefreshToken();
+						
+							GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
+							System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
+							
+							authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"" );
+							System.out.println("Ga Data --ArrayList");
+							System.out.println(list.size());
+						if(list.size()>0)
+						{	rowData=new ArrayList<ArrayList<?>>();
+								//gaJson=new ArrayList<String>();
+						
+							while(z<list.size())
+							{
+								gaData=list.get(z);
+								
+								if(gaData!=null  & gaData.getRows()!=null)
+								{
+								
+									z++;
+									ArrayList<ArrayList<String>> dataSet=new ArrayList(gaData.getRows());
+									rowData.addAll(dataSet);
+									dataSet=null;
+								}
+								
+							}
+							System.out.println("Row Data Size::"+rowData.size());
+							
+							//res.getWriter().println(GaDatastoreService.convertObjectToJson(rowData).toString());
+						}
+						else{
+								System.out.println("NO data Fetched");
+						}
+						
+						z=0;
+				
+			
+			System.out.println("fetching the data from cache");
+			
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}	
+    
+    @RequestMapping("/getBatchData.do")
+    @ResponseBody
+    public void getBatchData(HttpServletRequest req,HttpServletResponse res)
+    {
+    	String dateFrom=req.getParameter("dateFrom");
+    	String dataType=req.getParameter("dataType");
+    	String printFlag=req.getParameter("printFlag");
+    	
+    	String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
+    	ArrayList<ArrayList<?>> rows=null;
+    	try {
+    		
+    		
+    			String processedData=null;
+    			
+    			//res.getWriter().println(rows.toString());
+    			String key="GaDataObject_"+"SBLIVE"+"_"+dateFrom.replaceAll("-", "")+"_"+GAUtil.getkeyElementFromDimension(dimensions);
+    			if(dataType!=null && dataType.equals("csv"))
+    			{
+    					
+    					byte [] csvData=DataStoreManager.get(key+"_csv", dateFrom.replaceAll("-", ""));
+    					if(csvData!=null)
+    					{
+    						
+								processedData=(String)ZipData.extractBytes(csvData);
+    					}else
+    					{
+    						rows=GaDatastoreService.fetchGADataBatch(dateFrom, dimensions, GAUtil.getkeyElementFromDimension(dimensions), "SBLIVE");
+    						if(rows!=null)
+    			    		{System.out.println("batch Size::::"+rows.size());
+	    						processedData=CsvUtil.formatCsv(rows,Charset.defaultCharset()).toString();
+	    						byte [] compressData=ZipData.compressBytes(processedData);
+	    						System.out.println(" CSV DataCompressed");
+	    						DataStoreManager.set(key+"_csv", dateFrom.replaceAll("-", ""), compressData);
+    			    		}
+    					}
+    					
+    					
+   					 	res.setHeader("Content-Type", "application/octet-stream; charset=UTF-8");
+   				        res.setHeader("Content-Disposition","attachment;filename=analyticsData.csv");
+   				        res.setCharacterEncoding("UTF-8");
+   				        
+   				        
+   				        // req.setAttribute("csvData", CsvUtil.formatCsv(sbRowData,Charset.defaultCharset()).toString());
+   				        System.out.println("printing csv data");
+   				
+    				
+    			}
+    			if(dataType!=null && dataType.equals("json"))
+    			{
+    				
+    				byte [] jsonData=DataStoreManager.get(key+"_json", dateFrom.replaceAll("-", ""));
+    				
+    				if(jsonData==null)
+    				{
+    						
+		    				rows=GaDatastoreService.fetchGADataBatch(dateFrom, dimensions, GAUtil.getkeyElementFromDimension(dimensions), "SBLIVE");
+		    				if(rows!=null)
+				    		{System.out.println("batch Size::::"+rows.size());
+		    				//res.getWriter().println(GaDatastoreService.convertObjectToJson(rows).toString());
+		    				processedData=GaDatastoreService.convertObjectToJson(rows).toString();
+		    				byte [] compressData=ZipData.compressBytes(processedData);
+							System.out.println(" JSON DataCompressed");
+							DataStoreManager.set(key+"_json", dateFrom.replaceAll("-", ""), compressData);
+							System.out.println("JSON Data Stored in DataStore  :  "+key+"_json");
+							
+				    		}
+		    		}else
+		    		{
+		    			processedData=(String)ZipData.extractBytes(jsonData);
+		    			
+		    		}
+		    				
+		    		
+    			}
+    			
+    			if(processedData!=null && printFlag!=null)
+    			{
+    				res.getWriter().println(processedData);
+    			}
+    	
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (DataFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+    }
+    
+    @RequestMapping("/getBatchCSV.do")
+    @ResponseBody
+    public void getBatchCSV(HttpServletRequest req,HttpServletResponse res) throws org.json.JSONException
+    {
+    	
+    	String dateFrom=req.getParameter("dateFrom");
+    	System.out.println("dataFrom:::;   "+dateFrom);
+    	String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
+    	ArrayList<ArrayList<?>> rows=null;
+    	String processedData=null;
+    	try {
+    		rows=GaDatastoreService.fetchGADataBatch(dateFrom, dimensions, GAUtil.getkeyElementFromDimension(dimensions), "SBLIVE");
+    		if(rows!=null)
+    		{
+    			String jsonData;
+    			System.out.println("batch Size::::"+rows.size());
+    			ArrayList agentActionData=new GaReportProcessor().AgentActionReport(rows);
+    			//String agentReport=GaDatastoreService.convertObjectToJson(arr).toString();
+    			//DataStoreManager.set("AgentActionCount_JSON_"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(agentReport.toString()));
+    			//processedData=CsvUtil.formatCsv(agentActionData,Charset.defaultCharset()).toString();
+    			//DataStoreManager.set("AgentActionCount_CSV"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(processedData.toString()));
+    			//jsonData=ZipData.extractBytes(DataStoreManager.get("AgentActionCount_JSON_"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", "")));
+    			//System.out.println("jsonData"+jsonData);
+    			
+    			ArrayList<ArrayList<?>> arr=new ArrayList<ArrayList<?>>(agentActionData);
+    			DataStoreManager.set("AgentActionCount_"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(GaDatastoreService.convertObjectToJson(arr).toString()));
+    			arr=new GaReportProcessor().reorderAgentReport(agentActionData);
+    			processedData=CsvUtil.formatCsvfromArray(arr,',',Charset.defaultCharset()).toString();
+    			DataStoreManager.set("AgentActionCount_CSV"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(processedData.toString()));
+    			res.setHeader("Content-Type", "application/octet-stream; charset=UTF-8");
+			    res.setHeader("Content-Disposition","attachment;filename=AgentActionCount"+dateFrom.replaceAll("-", "")+".csv");
+			    res.setCharacterEncoding("UTF-8");
+    			res.getWriter().println(processedData);
+    		}
+			
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    
+    }
+    @RequestMapping("/getAgentDetails.do")
+    @ResponseBody
+    public void getAgentDetails(HttpServletRequest req,HttpServletResponse res) throws org.json.JSONException
+    {
+    	
+    	String dateFrom=req.getParameter("dateFrom");
+    	System.out.println("dataFrom:::;   "+dateFrom);
+    	try {
+    	byte[] b=DataStoreManager.get("AgentActionCount_CSV"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""));
+    	if(b.length>1)
+    	{
+    		
+				String csvData=ZipData.extractBytes(b);
+				res.setHeader("Content-Type", "application/octet-stream; charset=UTF-8");
+			    res.setHeader("Content-Disposition","attachment;filename=AgentActionCount"+dateFrom.replaceAll("-", "")+".csv");
+			    res.setCharacterEncoding("UTF-8");
+    			res.getWriter().println(csvData);
+    	
+    	}
+    
+    } catch (IOException
+			| DataFormatException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+    	
+    }
+    
+    
+    
     
     
 }

@@ -24,15 +24,25 @@
     	<schedule>every 4 hours synchronized</schedule>
   </cron>--> 
   
+ 
   <cron>
-    <url>/fetchFilteredData.do</url>
-    	<description>Temp Cron For 7 dimension live</description>
-    	<schedule>every 1 hours</schedule>
-  </cron> 
+    <url>/processAgentReport.do</url>
+    	<description>Process AgentAction Report</description>
+    	<schedule>every day 10:00</schedule>
+    	<target>gabackend</target>
+  </cron>
   
   <cron>
-    <url>/gaDataEmailService.do</url>
+    <url>/fetchBatchData.do</url>
+    	<description>Store Batch Data In Datastore</description>
+    	<schedule>every day 09:00</schedule>
+    	<target>gabackend</target>
+  </cron>
+  
+   
+  <cron>
+    <url>/agentActionEmailService.do</url>
     	<description>raw data emailer</description>
-    	<schedule>every day 10:00</schedule>
+    	<schedule>every day 11:00</schedule>
   </cron>
 </cronentries>

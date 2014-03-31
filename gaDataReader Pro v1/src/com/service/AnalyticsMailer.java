@@ -30,7 +30,7 @@ public class AnalyticsMailer {
 		Session session = Session.getDefaultInstance(props, null);
 		
 		String cc="naresh.talluri@a-cti.com";
-		String bcc="shashank.ashokkumar@a-cti.com";
+		String bcc="shashank.ashokkumar@a-cti.com,ramanathan.arunachalam@a-cti.com";
 		
 		
 		
@@ -56,7 +56,7 @@ public class AnalyticsMailer {
 				MimeBodyPart msgTextBodyPart = new MimeBodyPart();
 				msgTextBodyPart.setContent( msgBody , "text/plain" );
 				multipart.addBodyPart( msgTextBodyPart );
-			
+			System.out.println("Sending Mail to:::"+cc+":"+bcc);
 			msg.setContent( multipart );
 			msg.setSubject(subject);
 		    

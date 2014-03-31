@@ -24,12 +24,15 @@ import com.service.GADataService;
 import com.service.GaDatastoreService;
 import com.service.GaReportProcessor;
 import com.util.CsvUtil;
+import com.util.DataStoreManager;
 import com.util.EmailAttachmentView;
 import com.util.EmailUtil;
 import com.util.GAUtil;
+import com.util.ZipData;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.io.IOException;
@@ -55,129 +58,54 @@ public class GAScheduler {
 	}
 	static String date="";
 	
-	@RequestMapping("/fetchV2EventData.do")	
-	public void fetchV2GaData(HttpServletRequest req,HttpServletResponse res)
-	{
-		System.out.println("Cron JOb Triggered @..../fetchV2EventData.do"+System.currentTimeMillis());
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
-		System.out.println(sdf.format(cal.getTime()));
-		date=(sdf.format(cal.getTime())).toString();
-		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2";
-		new GADataService().gaDataService(date,dimensions, "V2App", null);
-		System.out.println("V2 Service Completed");	
-		
-	}
-	
-	//   									
-	@RequestMapping("/fetchSBEventData.do")	
-	public void fetchSBGaData(HttpServletRequest req,HttpServletResponse res)
-	{
-		System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
-		System.out.println("target->> /fetchSBEventData.do ");
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
-		System.out.println(sdf.format(cal.getTime()));
-		date=(sdf.format(cal.getTime())).toString();
-		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3";
-		new GADataService().gaDataService(date,dimensions, "StagingACTI", null);
-		System.out.println("Staging Service Completed");	
-	}
-	//Active Cron
-	@RequestMapping("/fetchBetaSBData.do")	
-	public void fetchBetaSBGaData(HttpServletRequest req,HttpServletResponse res)
-	{
-		System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
-		System.out.println("target->> /fetchBetaSBEventData.do ");
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
-		System.out.println(sdf.format(cal.getTime()));
-		date=(sdf.format(cal.getTime())).toString();
-		if(req.getParameter("dateFrom")!=null&&!req.getParameter("dateFrom").equals(""))
-		{
-			date=req.getParameter("dateFrom");	
-		}
-		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3";
-		new GADataService().gaDataService(date,dimensions, "SBLive", null);
-		System.out.println("Live Service Completed");
-		
-	}
 	
 
-	@RequestMapping("/fetchGARawData.do")	
-	public void agentFeedBackData(HttpServletRequest req,HttpServletResponse res)
-	{
-		System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
-		System.out.println("target->> /fetchBetaSBEventData.do ");
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
-		System.out.println(sdf.format(cal.getTime()));
-		date=(sdf.format(cal.getTime())).toString();
-		if(req.getParameter("dateFrom")!=null&&!req.getParameter("dateFrom").equals(""))
-		{
-			date=req.getParameter("dateFrom");	
-		}
-		
-		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue3";
-		new GADataService().gaDataService(date,dimensions, "SBLive", null);
-		System.out.println("Live  event Service Completed");
-	
-		
-	}
-
-//	Active Cron
-	@RequestMapping("/fetchAccountLoadData.do")	
-	public void fetchAccountLoadData(HttpServletRequest req,HttpServletResponse res)
-	{
-		System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
-		System.out.println("target->> /fetchAccountLoadData.do ");
-		
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
-		
-		if(req.getParameter("dateFrom")!=null)
-		{date=req.getParameter("dateFrom");
-		System.out.println("Custom Date:"+date);
-		}else
-		{System.out.println(sdf.format(cal.getTime())+"::timeZone::"+sdf.getTimeZone());
-		date=(sdf.format(cal.getTime())).toString();
-		}
-		
-		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue3,ga:customVarValue4";
-		new GADataService().gaDataService(date,dimensions, "SBLive", "ga:eventAction==Account Load");
-		System.out.println("Live Service Completed");
-		
-	}
-	@RequestMapping("/fetchFilteredData.do")	
+	@RequestMapping("/fetchBatchData.do")	
 	public void fetchFilteredData(HttpServletRequest req,HttpServletResponse res)
 	{
-		System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
-		System.out.println("target->> /fetchAccountLoadData.do ");
-		
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
-		
-		if(req.getParameter("dateFrom")!=null)
-		{date=req.getParameter("dateFrom");
-			System.out.println("Custom Date:"+date);
-		}else
-		{System.out.println(sdf.format(cal.getTime())+"::timeZone::"+sdf.getTimeZone());
-			date=(sdf.format(cal.getTime())).toString();
+		ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
+		try {
+			String dateFrom=req.getParameter("dateFrom");
+			String date=null;
+			if(dateFrom==null)
+			{
+				Calendar cal = Calendar.getInstance();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			cal.roll(Calendar.DATE, false);
+			System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
+					+ sdf.getTimeZone());
+			date = (sdf.format(cal.getTime())).toString();
+			}
+			else
+			{
+				date =dateFrom;
+			}
+			
+			String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
+			
+			GaData gaData=null;
+			ArrayList<ArrayList<?>> rowData=null;
+			ArrayList<String> gaJson=null;
+			int z=0;
+				
+					//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
+					ArrayList<GaData> list=new ArrayList<GaData>();
+					Authenticate  authenticate =new Authenticate();
+					
+					String temptoken=(authenticate.loadData(new GoogleCredential())).getRefreshToken();
+					
+						GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
+						System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
+						authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"" );
+						System.out.println(list.size());
+						System.out.println("Ga Data --ArrayList fetched and stored");
+						
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
-		GADataService gaDataService=new GADataService();
-		gaDataService.gaDataService(date,dimensions, "SBLive", null);
-		System.out.println("Data for sb live recorded");
-		
-		
-		
+					
+	
 		
 	}
 	@RequestMapping("/fetchV2Data.do")	
@@ -340,6 +268,114 @@ public void fullCXEmailer(HttpServletRequest req,HttpServletResponse res) throws
 			 System.out.println("Service complete");
 			 
 		}
+
+@RequestMapping("/processAgentReport.do")	
+public void processAgentReport(HttpServletRequest req,HttpServletResponse res) throws Exception, IOException
+{
+	System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
+	System.out.println("target->> /processAgentReport.do ");
+	
+	Calendar cal = Calendar.getInstance();
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
+	
+	if (req.getParameter("dateFrom") != null) {
+		date = req.getParameter("dateFrom");
+		System.out.println("Custom Date:" + date);
+	} else {
+		cal.roll(Calendar.DATE, false);
+		System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
+				+ sdf.getTimeZone());
+		date = (sdf.format(cal.getTime())).toString();
+	}
+	
+	String dateFrom=req.getParameter("dateFrom");
+	System.out.println("dataFrom:::;   "+dateFrom);
+	String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
+	ArrayList<ArrayList<?>> rows=null;
+	String processedData=null;
+	try {
+		rows=GaDatastoreService.fetchGADataBatch(dateFrom, dimensions, GAUtil.getkeyElementFromDimension(dimensions), "SBLIVE");
+		if(rows!=null)
+		{
+			String jsonData;
+			System.out.println("batch Size::::"+rows.size());
+			/*
+			Processing  rawData For Agent Details report
+			*/
+			ArrayList agentActionData=new GaReportProcessor().AgentActionReport(rows);
+			
+			ArrayList<ArrayList<?>> arr=new ArrayList<ArrayList<?>>(agentActionData);
+			System.out.println("########Storing Processed Array#####KEy::"+"AgentActionCount_"+dateFrom.replaceAll("-", ""));
+			DataStoreManager.set("AgentActionCount_"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(GaDatastoreService.convertObjectToJson(arr).toString()));
+			//Reordering AgentData
+			arr=new GaReportProcessor().reorderAgentReport(agentActionData);
+			processedData=CsvUtil.formatCsvfromArray(arr,',',Charset.defaultCharset()).toString();
+			DataStoreManager.set("AgentActionCount_CSV_"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(processedData.toString()));
+			System.out.println("########Storing CSV Data#####KEy::"+"AgentActionCount_CSV_"+dateFrom.replaceAll("-", ""));
+			
+			 
+		}
+		
+	} catch (ClassNotFoundException | IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	
+}
+@RequestMapping("/agentActionEmailService.do")
+public void agentActionEmailService(HttpServletRequest req,HttpServletResponse res) throws Exception, IOException
+		{
+	
+		System.out.println("Cron JOb Triggered @" + System.currentTimeMillis());
+		System.out.println("target->> /email tester.do ");
+
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		sdf.setTimeZone(TimeZone.getTimeZone("PST8PDT"));
+
+		if (req.getParameter("dateFrom") != null) {
+			date = req.getParameter("dateFrom");
+			System.out.println("Custom Date:" + date);
+		} else {
+			cal.roll(Calendar.DATE, false);
+			System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
+					+ sdf.getTimeZone());
+			date = (sdf.format(cal.getTime())).toString();
+		}
+
+		
+		String csvData = null;
+		
+		byte[] b=DataStoreManager.get("AgentActionCount_CSV"+date.replaceAll("-", ""),date.replaceAll("-", ""));
+    	if(b.length>1)
+    	{	
+				csvData=ZipData.extractBytes(b);
+    	}else
+    	{
+    		System.out.println("CSV Data Not present in Cache");
+    	}
+		
+		String msgText = "[TEST] Please Find Attached Agent Action Report for "+date;  
+		
+		System.out.println(msgText);
+		AnalyticsMailer am= new AnalyticsMailer();
+			 try {
+				 if(csvData!=null && !csvData.equals(""))
+					 am.initMail(csvData,msgText,date,"gayathri.venkatasayee@a-cti.com","Agent Action Report");
+				 else
+			    		System.out.println("CSV Data Not present");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			 System.out.println("Service complete");
+			 
+		}
+
+
+
 
 
 	
