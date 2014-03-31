@@ -311,7 +311,7 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 			//Reordering AgentData
 			arr=new GaReportProcessor().reorderAgentReport(agentActionData);
 			processedData=CsvUtil.formatCsvfromArray(arr,',',Charset.defaultCharset()).toString();
-			DataStoreManager.set("AgentActionCount_CSV_"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(processedData.toString()));
+			DataStoreManager.set("AgentActionCount_CSV"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(processedData.toString()));
 			System.out.println("########Storing CSV Data#####KEy::"+"AgentActionCount_CSV_"+dateFrom.replaceAll("-", ""));
 			
 			 
