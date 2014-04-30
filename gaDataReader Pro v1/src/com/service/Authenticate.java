@@ -5,11 +5,10 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessProtectedResource;
-
 import com.google.api.client.auth.oauth2.CredentialStore;
 import com.google.api.client.extensions.appengine.auth.oauth2.AppEngineCredentialStore;
-import java.io.IOException;
 
+import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +17,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+
 
 
 
@@ -32,7 +33,6 @@ import com.google.api.client.googleapis.*;
 import com.google.api.client.googleapis.auth.clientlogin.*;
 import com.google.api.client.googleapis.json.*;
 import com.google.api.client.http.*;
-
 import com.util.DataStoreManager;
 import com.util.GAUtil;
 import com.util.ZipData;
@@ -118,7 +118,7 @@ public class Authenticate
 			System.out.println("googleCredential  loaded  acces token::"+googleCredential.getAccessToken());
 			return googleCredential;
 		}
-		public void gaQurey(GoogleTokenResponse response,String accessToken,String dateFrom,String dateTo,boolean flag,ArrayList<GaData> list,String dimensions, String tableId, String filter)
+		public void gaQurey(GoogleTokenResponse response,String accessToken,String dateFrom,String dateTo,boolean flag,ArrayList<GaData> list,String dimensions, String tableId, String filter, String month)
 		{
 			System.out.println( response+":"+ accessToken+":"+ dateFrom+":"+ dateTo+":"+ flag+":"+ list+":"+ dimensions+":"+ tableId+":"+ filter);
 			if(tableId==null || tableId.equals(""))
@@ -154,14 +154,26 @@ public class Authenticate
 			try
 				{
 				
+				
 				System.out.println(dimensions);
 					Get apiQuery = analytics.data().ga().get("ga:"+tableId,dateFrom,dateTo,"ga:visits");
 					apiQuery.setDimensions( dimensions );
 					apiQuery.setMetrics("ga:totalEvents");
-					//apiQuery.setFilters(filter);
+					if(filter!=null && !filter.equals("") && tableId.equals("62456345"))
+					{
+						apiQuery.setFilters("ga:eventAction=@Transfer,ga:eventAction==Dialing");	
+					}
+					
 					System.out.println("setting sort");
 					String keyElement=GAUtil.getkeyElementFromDimension(dimensions);
 					String key="GaDataObject_"+"SBLive"+"_"+dateFrom.replaceAll("-", "")+"_"+keyElement;
+					if(tableId.equals("62456345"))
+					{key="GaDataObject_"+"V2Outbound"+"_"+dateFrom.replaceAll("-", "")+"_"+keyElement;
+						if(month!=null)
+						{
+							key="GaDataObject_"+"V2Outbound"+"_"+dateFrom.replaceAll("-", "")+"_"+dateTo.replaceAll("-", "");
+						}
+					}
 					int batchSize=1;
 					int counter=1;
 					byte [] compressData=null;
@@ -198,6 +210,13 @@ public class Authenticate
 						gaDataKeyMap.put("keyList", dimArray);
 						compressData=ZipData.compressBytes(GaDatastoreService.convertObjectToJson(gaDataKeyMap).toString());
 						String masterKey="GaDataObject_"+"SBLIVE"+"_"+dateFrom.replaceAll("-", "")+"_"+keyElement;
+						if(tableId.equals("62456345"))
+						{masterKey="GaDataObject_"+"V2Outbound"+"_"+dateFrom.replaceAll("-", "")+"_"+keyElement;
+						if(month!=null)
+						{
+							masterKey="GaDataObject_"+"V2Outbound"+"_"+dateFrom.replaceAll("-", "")+"_"+dateTo.replaceAll("-", "");
+						}
+						}
 						System.out.println("Writing For:::::"+masterKey);
 						DataStoreManager.set(masterKey,dateFrom.replaceAll("-", ""),compressData);
 						compressData=null;
@@ -206,9 +225,16 @@ public class Authenticate
 					
 					System.out.println("Looping for:::::: "+(k+1));
 					//Write to Data store
+					ArrayList<ArrayList<?>> rows=null;
+					if(gaData.getRows()!=null)
+					{
+						rows=new ArrayList(gaData.getRows());	
+					}else
+					{
+						AnalyticsMailer am=new AnalyticsMailer();
+						am.initMail("","No data Found in gaData","","shashank.ashokkumar@a-cti.com","GA Exception","","");
+					}
 					
-					
-					ArrayList<ArrayList<?>> rows=new ArrayList(gaData.getRows());
 					compressData=ZipData.compressBytes(GaDatastoreService.convertObjectToJson(rows).toString());
 					System.out.println("Writing For:::::"+dimArray.get(counter-1));
 					DataStoreManager.set(dimArray.get(counter-1),dateFrom.replaceAll("-", ""),compressData);
@@ -234,6 +260,7 @@ public class Authenticate
 			catch ( IOException e )
 				{
 					// TODO Auto-generated catch block
+				
 					e.printStackTrace();
 				} 
 			

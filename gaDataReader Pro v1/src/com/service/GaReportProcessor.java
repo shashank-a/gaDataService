@@ -294,6 +294,7 @@ public class GaReportProcessor {
 		  HashSet<String> uniqueActionSet=getUniqueDimensionFromGAData(jsonData,1);
 		  HashSet<String> uniqueAgentSet=null;
 		  
+		  
 		  TreeMap<String,Object> rowObj= null;
 		  ArrayList agentData=new ArrayList<String>();
 		  ArrayList agentActionDetils= new ArrayList();
@@ -308,6 +309,10 @@ public class GaReportProcessor {
 			uniqueActionSet.add("Send (IB)");
 			uniqueActionSet.add("Send (NOID)");
 			uniqueActionSet.add("Send (CI)");
+			uniqueActionSet.add("Annotation/close(IB)");
+			uniqueActionSet.add("Annotation/close(NOID)");
+			uniqueActionSet.add("Annotation/close(CI)");
+			
 
 		  //  
 		  ArrayList<String> uniqueAction=new ArrayList(Arrays.asList(uniqueActionSet.toArray()));
@@ -336,39 +341,52 @@ public class GaReportProcessor {
 						{
 						if(row.get(1).equals("CallConclusion"))
 							rowObj.put("CallConclusion (IB)",Integer.parseInt(rowObj.get("CallConclusion (IB)").toString())+1);
-						if(row.get(1).equals("Done"))
+						else if(row.get(1).equals("Done"))
 							rowObj.put("Send (IB)",Integer.parseInt(rowObj.get("Send (IB)").toString())+1);
-						if(row.get(1).equals("Account Load"))
+						else if(row.get(1).equals("Account Load"))
 							rowObj.put("Account Load (IB)",Integer.parseInt(rowObj.get("Account Load (IB)").toString())+1);
+						else if(row.get(1).equals("Annotation/close"))
+							rowObj.put("Annotation/close(IB)",Integer.parseInt(rowObj.get("Annotation/close(IB)").toString())+1);
+							
 					}
 					else if(row.get(3).toString().equals("Fetch"))
 					{
 						if(row.get(1).equals("CallConclusion"))
 							rowObj.put("CallConclusion (NOID)",Integer.parseInt(rowObj.get("CallConclusion (NOID)").toString())+1);
-						if(row.get(1).equals("Done"))
+						else if(row.get(1).equals("Done"))
 						rowObj.put("Send (NOID)",Integer.parseInt(rowObj.get("Send (NOID)").toString())+1);
-						if(row.get(1).equals("Account Load"))
+						else if(row.get(1).equals("Account Load"))
 								{
 							rowObj.put("Account Load (NOID)",Integer.parseInt(rowObj.get("Account Load (NOID)").toString())+1);
 								}
+						else if(row.get(1).equals("Annotation/close"))
+							{rowObj.put("Annotation/close(NOID)",Integer.parseInt(rowObj.get("Annotation/close(NOID)").toString())+1);
+							
+							}
 					}
+					
 				else
 					{
 					if(row.get(1).equals("CallConclusion"))
 						rowObj.put("CallConclusion (CI)",Integer.parseInt(rowObj.get("CallConclusion (CI)").toString())+1);
-					if(row.get(1).equals("Done"))
+					else if(row.get(1).equals("Done"))
 					rowObj.put("Send (CI)",Integer.parseInt(rowObj.get("Send (CI)").toString())+1);
-					}
-					if(row.get(1).equals("Account Load-SBChat")||row.get(1).equals("Account Load-eventToTalk")||row.get(1).equals("Account Load-repeat"))
+					
+					else if(row.get(1).equals("Account Load-SBChat")||row.get(1).equals("Account Load-eventToTalk")||row.get(1).equals("Account Load-repeat"))
 						{
 							rowObj.put("Account Load (CI)",Integer.parseInt(rowObj.get("Account Load (CI)").toString())+1);
 							rowObj.put("Account Load",Integer.parseInt(rowObj.get("Account Load").toString())+1);
+						}
+					else if(row.get(1).equals("Annotation/close"))
+						{rowObj.put("Annotation/close(CI)",Integer.parseInt(rowObj.get("Annotation/close(CI)").toString())+1);
+						
 						}
 					
 				}
 
 					
 				}
+			}
 			
 			if(columnName==null)
 				{

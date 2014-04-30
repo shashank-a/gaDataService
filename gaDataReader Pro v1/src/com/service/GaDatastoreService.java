@@ -181,7 +181,7 @@ public class GaDatastoreService
 	    
 	    // methods to read Datastore in batch operation...
 	    
-	    public static ArrayList<ArrayList<?>> fetchGADataBatch(String dateFrom, String dimension, String keyElement, String app) throws IOException, ClassNotFoundException
+	    public static ArrayList<ArrayList<?>> fetchGADataBatch(String dateFrom, String dateTo, String dimension, String keyElement, String app, String range) throws IOException, ClassNotFoundException
 	    {
 	    	//ArrayList<ArrayList<?>> rowData=null;
 	    	ArrayList<ArrayList<?>> rows=null;
@@ -193,28 +193,20 @@ public class GaDatastoreService
 	    	byte[] rowDataInByte=new byte[0];
 	    	try {
 	    	String key="GaDataObject_"+app+"_"+dateFrom.replaceAll("-", "")+"_"+keyElement;
-	    		//System.out.println("#######Fetching Data Form  MemCache#######"+key);
-//	    		HashMap<Object,Object> cacheMap=MemCacheServiceHelper.getCacheContents(key);
-//	    		if(cacheMap!=null && cacheMap.get("value")!=null)
-//	    		{
-//	    			//System.out.println(cacheMap.get("value"));
-//	    			rowDataInByte=(byte[])cacheMap.get("value");
-//	    		}
-//	    		else{
+	    	if(range!=null)
+	    	{
+	    		key="GaDataObject_"+app+"_"+dateFrom.replaceAll("-", "")+"_"+dateTo.replaceAll("-", "");
+	    	}
+	    		
 	    		System.out.println("#######Fetching Data Form  Data Store#######"+key);
 	    		rowDataInByte =DataStoreManager.get(key,dateFrom.replaceAll("-", ""));
-	    		
-	    	 // System.out.println("cache data::"+appcachemanager.get(key,dimension));
-	    	  
-	    	  //System.out.println("rowDataInByte"+rowDataInByte);
+
 	    	  if(rowDataInByte!=null)
 	    	  {
 		    	  if(rowDataInByte.length>1)
 		    	  {	System.out.println("byte array not null");
 		    	  	
 		    	  hm=(HashMap<String,Object>)convertJsonToHashMap(ZipData.extractBytes(rowDataInByte));
-		    	  	//rowData1=(ArrayList<ArrayList<?>>)convertJsonToObject(ZipData.extractBytes((byte[])appcachemanager.get(key,dimension)));
-			    	  //System.out.println(rowData1);
 		    	  rowDataInByte=null;
 				    	  if(hm.get("gaDataList")==null)
 				    	  {
@@ -233,7 +225,7 @@ public class GaDatastoreService
 					    		   hm.put("length",list.size());
 					    		   byte [] compressData=ZipData.compressBytes(convertObjectToJson(hm).toString());
 					    		   System.out.println("DataCompressed");
-					    		   //MemCacheServiceHelper.setInMemCache(key,dimension,compressData);
+					    		   
 					    		   DataStoreManager.set(key,dateFrom.replaceAll("-", ""),compressData);
 					    		   System.out.println("Data Written in Cache....."+key);
 					    	  }
@@ -256,6 +248,30 @@ public class GaDatastoreService
 	    	return list;
 	    			
 	    }
+	    
+	    
+	    public ArrayList<ArrayList<?>> addReportHeaders(ArrayList<ArrayList<?>> rowData)
+	    {
+	    	
+	    	ArrayList<ArrayList<?>> ar= new ArrayList<ArrayList<?>>();
+	    	ArrayList column=new ArrayList();
+	    	column.add("Account");
+	    	column.add("Action");
+	    	column.add("Agent");
+	    	column.add("OBNumber");
+	    	column.add("InboundConnId");
+	    	column.add("OutboundConnId");
+	    	column.add("TimeStamp");
+	    	column.add("Total");
+	    	ar.add(column);
+	    	ar.addAll(rowData);
+	    
+	    	return ar;
+	    			
+	    }
+	    
+	    
+	    
 	    
 
 }

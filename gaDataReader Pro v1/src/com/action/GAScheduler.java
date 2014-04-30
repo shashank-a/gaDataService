@@ -61,7 +61,7 @@ public class GAScheduler {
 	
 
 	@RequestMapping("/fetchBatchData.do")	
-	public void fetchFilteredData(HttpServletRequest req,HttpServletResponse res)
+	public void fetchBatchData(HttpServletRequest req,HttpServletResponse res)
 	{
 		ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
 		try {
@@ -96,13 +96,21 @@ public class GAScheduler {
 					
 						GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
 						System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
-						authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"" );
+						authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
 						System.out.println(list.size());
 						System.out.println("Ga Data --ArrayList fetched and stored");
 						
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			AnalyticsMailer am= new AnalyticsMailer();
+			 try {
+				am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","");
+			} catch (UnsupportedEncodingException ex) {
+				// TODO Auto-generated catch block
+				ex.printStackTrace();
+			}
+		
 		}
 					
 	
@@ -212,7 +220,7 @@ public void emailTester(HttpServletRequest req,HttpServletResponse res) throws E
 		System.out.println(msgText);
 		AnalyticsMailer am= new AnalyticsMailer();
 			 try {
-				am.initMail(csvData,msgText,date,"gayathri.venkatasayee@a-cti.com","Analytics Raw Data Report");
+				am.initMail(csvData,msgText,date,"shashank.ashokkumar@a-cti.com","Analytics Raw Data Report","","");
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -260,7 +268,7 @@ public void fullCXEmailer(HttpServletRequest req,HttpServletResponse res) throws
 		System.out.println(msgText);
 		AnalyticsMailer am= new AnalyticsMailer();
 			 try {
-				am.initMail(csvData,msgText,date,"shashank.ashokkumar@a-cti.com","Full CX Feedback Report[Google Analytics]");
+				am.initMail(csvData,msgText,date,"shashank.ashokkumar@a-cti.com","Full CX Feedback Report[Google Analytics]","","");
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -274,6 +282,7 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 {
 	System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
 	System.out.println("target->> /processAgentReport.do ");
+	String dateFrom=req.getParameter("dateFrom");
 	
 	Calendar cal = Calendar.getInstance();
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -287,15 +296,17 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 		System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
 				+ sdf.getTimeZone());
 		date = (sdf.format(cal.getTime())).toString();
+		dateFrom=date;
 	}
 	
-	String dateFrom=req.getParameter("dateFrom");
+	
+	
 	System.out.println("dataFrom:::;   "+dateFrom);
 	String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
 	ArrayList<ArrayList<?>> rows=null;
 	String processedData=null;
 	try {
-		rows=GaDatastoreService.fetchGADataBatch(dateFrom, dimensions, GAUtil.getkeyElementFromDimension(dimensions), "SBLIVE");
+		rows=GaDatastoreService.fetchGADataBatch(date, null, dimensions, GAUtil.getkeyElementFromDimension(dimensions), "SBLIVE", null);
 		if(rows!=null)
 		{
 			String jsonData;
@@ -320,6 +331,15 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 	} catch (ClassNotFoundException | IOException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
+		AnalyticsMailer am= new AnalyticsMailer();
+		 try {
+			am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","");
+			
+		} catch (UnsupportedEncodingException ex) {
+			// TODO Auto-generated catch block
+			ex.printStackTrace();
+		}
+		
 	}
 	
 	
@@ -347,6 +367,7 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 
 		
 		String csvData = null;
+		try {
 		
 		byte[] b=DataStoreManager.get("AgentActionCount_CSV"+date.replaceAll("-", ""),date.replaceAll("-", ""));
     	if(b.length>1)
@@ -361,22 +382,123 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 		
 		System.out.println(msgText);
 		AnalyticsMailer am= new AnalyticsMailer();
-			 try {
+			 
 				 if(csvData!=null && !csvData.equals(""))
-					 am.initMail(csvData,msgText,date,"gayathri.venkatasayee@a-cti.com","Agent Action Report");
+					 {
+					String cc="naresh.talluri@a-cti.com,performancemanagement@a-cti.com";
+					String bcc="shashank.ashokkumar@a-cti.com,ramanathan.arunachalam@a-cti.com";
+					
+					 am.initMail(csvData,msgText,date,"gayathri.venkatasayee@a-cti.com","Agent Action Report",cc,bcc);
+					//am.initMail(csvData,msgText,date,"shashank.ashokkumar@a-cti.com","Agent Action Report","","");
+					 }
 				 else
-			    		System.out.println("CSV Data Not present");
+			    		System.out.println("CSV	 Data Not present");
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				AnalyticsMailer am= new AnalyticsMailer();
+				 try {
+					am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","");
+					
+				} catch (UnsupportedEncodingException ex) {
+					// TODO Auto-generated catch block
+					ex.printStackTrace();
+				}
+				
 			}
 			 System.out.println("Service complete");
 			 
 		}
 
+@RequestMapping("/fetchV2Outbound.do")	
+public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
+{
+	ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
+	AnalyticsMailer am= new AnalyticsMailer();
+	try {
+		String dateFrom=req.getParameter("dateFrom");
+		String dateTo=req.getParameter("dateTo");
+		String dateRange=req.getParameter("range");
+		String date=null;
+		if(dateFrom==null)
+		{
+			Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		cal.roll(Calendar.DATE, false);
+		System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
+				+ sdf.getTimeZone());
+		date = (sdf.format(cal.getTime())).toString();
+		dateFrom=date;
+		dateTo=date;
+		}
+		else
+		{
+			date =dateFrom;
+			
+		}
+		if(dateRange==null)
+		{
+			dateRange="today";
+		}
+		
+		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
+		
+		GaData gaData=null;
+		ArrayList<ArrayList<?>> rowData=null;
+		ArrayList<String> gaJson=null;
+		int z=0;
+			
+				//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
+				ArrayList<GaData> list=new ArrayList<GaData>();
+				Authenticate  authenticate =new Authenticate();
+				ArrayList<ArrayList<?>> arrayList=null;
+		    	String processedData=null;
+				String temptoken=(authenticate.loadData(new GoogleCredential())).getRefreshToken();
+				
+					GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
+					System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
+					//authenticate.gaQurey(temp,temp.getAccessToken(), dateFrom, dateTo,true,list,dimensions, resourceBundle.getString("V2App"),"ga:eventAction==Call Transfer,ga:eventAction==Dialing", "monthly" );
+					System.out.println(list.size());
+					System.out.println("Ga Data --ArrayList fetched and stored");
+					arrayList=(new GaDatastoreService()).fetchGADataBatch(date,dateTo,dimensions,GAUtil.getkeyElementFromDimension(dimensions), "V2Outbound", dateRange);
+					//arrayList=(new GaDatastoreService()).addReportHeaders(arrayList);
+		    		System.out.println("processed Data"+arrayList.size());
+		    		processedData=CsvUtil.formatCsvfromArray(arrayList,',',Charset.defaultCharset()).toString();
+		    		
+		    		String msgText = "[TEST] Please Find Attached Google Analytics  V2 Outbound Report for "+date;
+		    		if(dateRange!=null && dateRange.equals("monthly")){
+		    			
+		    					msgText = "[TEST] Please Find Attached Google Analytics V2 Outbound Report for date  "+dateFrom+"->"+dateTo;
+		    					
+		    			}
+		    		
+		    		am.initMail(processedData,msgText,date,"shashank.ashokkumar@a-cti.com","V2 Outbound Report","","");
+		    		
+					
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		
+		 try {
+			am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","");
+			
+		} catch (UnsupportedEncodingException ex) {
+			// TODO Auto-generated catch block
+			ex.printStackTrace();
+		}
+	} catch (ClassNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	finally
+	{
+		am=null;
+		
+	}
+				
 
-
-
+	
+}
 
 	
 public static String getStackTrace(Throwable t)

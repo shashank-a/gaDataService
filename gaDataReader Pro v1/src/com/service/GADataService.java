@@ -44,7 +44,7 @@ public class GADataService {
 				GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
 				System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
 				
-				authenticate.gaQurey(temp,temp.getAccessToken(), dateFrom, dateFrom,true,list,dimensions, resourceBundle.getString(tableId),filter );
+				authenticate.gaQurey(temp,temp.getAccessToken(), dateFrom, dateFrom,true,list,dimensions, resourceBundle.getString(tableId),filter, null );
 				System.out.println("Ga Data --ArrayList");
 			if(list.size()>0)
 			{	rowData=new ArrayList<ArrayList<?>>();

@@ -28,21 +28,28 @@
   <cron>
     <url>/processAgentReport.do</url>
     	<description>Process AgentAction Report</description>
-    	<schedule>every day 10:00</schedule>
+    	<schedule>every day 09:50</schedule>
     	<target>gabackend</target>
   </cron>
   
   <cron>
     <url>/fetchBatchData.do</url>
     	<description>Store Batch Data In Datastore</description>
-    	<schedule>every day 09:00</schedule>
+    	<schedule>every day 09:30</schedule>
     	<target>gabackend</target>
   </cron>
-  
    
-  <cron>
+   <cron>
     <url>/agentActionEmailService.do</url>
     	<description>raw data emailer</description>
-    	<schedule>every day 11:00</schedule>
+    	<schedule>every day 10:00</schedule>
   </cron>
+  
+  <cron>
+    <url>/fetchV2Outbound.do</url>
+    	<description>fetch and store v2 Data</description>
+    	<schedule>every day 10:10</schedule>
+    	<target>gabackend</target>
+  </cron> 
+  
 </cronentries>

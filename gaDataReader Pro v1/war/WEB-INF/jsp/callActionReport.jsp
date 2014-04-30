@@ -13,7 +13,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <link rel="stylesheet" type="text/css" href="http://gadataservice.appspot.com/css/dataTable.css">
- <script src="/reportProcessor.js"></script>
+ <script src="http://images.sb.a-cti.com/testing/shashank/gData/reportProcessor.js"></script>
 <script src="/js/gaVisual.js"></script>
   <script src="/js/gaXHRProcessor.js"></script>
 <!-- <script src="http://s3-ap-southeast-1.amazonaws.com/shashanksworld/gaprocessor/reportProcessor.js"></script>

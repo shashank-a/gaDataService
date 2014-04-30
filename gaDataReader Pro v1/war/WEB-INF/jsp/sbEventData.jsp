@@ -8,8 +8,8 @@
 <html>
 
  <!-- <script src="http://images.sb.a-cti.com/testing/shashank/gData/reportProcessor.js"></script> -->
- <script src="/reportProcessor.js"></script>
-<script src="/js/gaVisual.js"></script>
+ <script src="http://images.sb.a-cti.com/testing/shashank/gData/reportProcessor.js"></script>
+<script src="http://images.sb.a-cti.com/testing/shashank/gData/gaVisual.js"></script>
   <script src="/js/localData.js"></script>
   <link rel="shortcut icon" href="/images/google-analytics-favicon.jpg" type="image/jpg">
   <!--  <script src="/js/localstoragehelper.js"></script>-->
@@ -96,8 +96,6 @@ var pageName='<%=pageName%>';
  var jsonData=JSON.parse(rowData);
  
  
- 
-
 </script>
 
 <script type='text/javascript'>

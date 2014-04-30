@@ -24,28 +24,26 @@ import org.codehaus.jackson.map.JsonMappingException;
 public class AnalyticsMailer {
 
 
-	public void initMail(String msgPart,String msgBody,String date, String to ,String subject) throws UnsupportedEncodingException
+	public void initMail(String msgPart,String msgBody,String date, String to ,String subject,String cc,String bcc) throws UnsupportedEncodingException
 	{
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
 		
-		String cc="naresh.talluri@a-cti.com";
-		String bcc="shashank.ashokkumar@a-cti.com,ramanathan.arunachalam@a-cti.com";
-		
-		
-		
-		
-
 		try {
 		    Message msg = new MimeMessage(session);
 		    msg.setFrom(new InternetAddress("shashank.ashokkumar@a-cti.com", "GaDataService Mailer"));
 //		    msg.addRecipient(Message.RecipientType.TO,
 //		     new InternetAddress("shashanksworld@gmail.com", "Mr. Shashank"));
+		    if(to!=null&&!to.equals("") )
 		    msg.setRecipients( Message.RecipientType.TO , InternetAddress.parse( to, false ) );
+		    if(cc!=null&&!cc.equals("") )
 		    msg.setRecipients( Message.RecipientType.CC , InternetAddress.parse( cc, false ) );
+		    if(bcc!=null&&!bcc.equals("") )
 		    msg.setRecipients( Message.RecipientType.BCC , InternetAddress.parse( bcc, false ) );
-		    
-		    	Multipart multipart = new MimeMultipart();
+		    Multipart multipart = new MimeMultipart();
+		    if(msgPart!=null && !msgPart.equals(""))
+		    {
+		    	
 				//Body Part 1
 		    	MimeBodyPart attachment = new MimeBodyPart();
 				attachment.setFileName( "analyticsRawData_" +date+ ".csv" );
@@ -53,10 +51,13 @@ public class AnalyticsMailer {
 				multipart.addBodyPart( attachment );
 				
 				//Body Part 2
-				MimeBodyPart msgTextBodyPart = new MimeBodyPart();
-				msgTextBodyPart.setContent( msgBody , "text/plain" );
-				multipart.addBodyPart( msgTextBodyPart );
-			System.out.println("Sending Mail to:::"+cc+":"+bcc);
+				
+			//System.out.println("Sending Mail to:::"+cc+":"+bcc);
+			
+		    }
+		    MimeBodyPart msgTextBodyPart = new MimeBodyPart();
+			msgTextBodyPart.setContent( msgBody , "text/plain" );
+			multipart.addBodyPart( msgTextBodyPart );
 			msg.setContent( multipart );
 			msg.setSubject(subject);
 		    

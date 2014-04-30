@@ -8,7 +8,7 @@
 <title>action jsp</title>
 <script>
 
-url="/getCallReport.do?page=cdr&dateFrom=";
+url="/redirector.do";
 	window.location=url;
 
 
