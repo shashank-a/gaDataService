@@ -1,17 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
     <%@ taglib  prefix="c"   uri="http://java.sun.com/jsp/jstl/core"  %> 
-     <%@page import="java.util.* "%>
-     <%@page import="com.account.AccountDetails"%>
+     
      
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
+<!-- <script type="text/javascript" async src="http://www.google-analytics.com/ga.js"></script> -->
 <script src="http://images.sb.a-cti.com/testing/shashank/gData/reportProcessor.js"></script>
 <script src="http://images.sb.a-cti.com/testing/shashank/gData/manageWorker.js"></script>
 <script src="http://images.sb.a-cti.com/testing/shashank/gData/gaVisual.js"></script>
 <script src="http://images.sb.a-cti.com/testing/shashank/gData/gaXHRProcessor.js"></script>
 <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+<script src="/js/jquery.tablesorter.min.js"></script>
  
   <script>
   var $j = jQuery.noConflict();
@@ -20,10 +21,10 @@
 <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
  <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet" media="screen">
 <link type="text/css" href="/calendar/themes/base/ui.all.css" rel="stylesheet" />
+<link type="text/css" href="/css/Style.css" rel="stylesheet" />
 <script type="text/javascript" src="/calendar/ui/ui.core.js"></script>
 <script type="text/javascript" src="/calendar/ui/ui.datepicker.js"></script>
-    <script src="http://code.angularjs.org/1.2.10/angular.min.js"></script>
-    <script src="http://code.angularjs.org/1.2.10/angular-animate.min.js"></script>
+    
 	
 <%
     		String pageName= null;
@@ -73,17 +74,36 @@ var pageName='<%=pageName%>';
 
 <script type='text/javascript'>
 
-
       function setKeyword(keyword)
       {
     	  document.getElementById("filterData").value=keyword;    	  
       }
-      
-      
-      
-      
        
+      
+      
+//             var _gaq = _gaq || [];
+      
+//       	_gaq.push(['_setAccount', 'UA-34454419-1']);
+//       	_gaq.push( ['_setDomainName', 'none']);
+//       	_gaq.push(['_setAllowLinker', true]);
+//       _gaq.push(['_trackPageview']);
+
+
+
+          	   
+      console.log("ga script added");
       </script>
+      <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-34454419-1', 'auto', {'allowLinker': true});
+  ga('send', 'pageview');
+
+</script>
+      
       <body>
       <div class="page-header" style="margin:20px 0 0px;padding-bottom:0">
   		<h2><small>SB Analytics Report</small></h2>
@@ -140,7 +160,7 @@ var pageName='<%=pageName%>';
   
 </ul> 
   
-<div  id="msg"class="alert" >
+<div  id="msgBox"class="alert" >
 			  <button type="button" class="close" data-dismiss="alert">&times;</button>
   				<div id='msg'><strong>Info::!</strong> <%=msg!=null?msg:"Select a Date"%></div>
   				
@@ -197,16 +217,7 @@ var pageName='<%=pageName%>';
 	    <button class="btn" onclick="w_filterData()">Filter</button>
 	    <button class="btn" onclick="clearData()">Clear</button>
 	    </td>
-	     <td><h2><small>Page Size :</small></h2></td>
-	    		<td>
-	    			<select id="pageOption"  onchange="setPageSize(this.value)">
-	    				<option value="20" selected="selected">20</option>
-	    				<option value="50">50</option>
-	    				<option  value="" >No Paging</option>
-	    			</select>
-	    		</td>
-	    <td>
-	    
+	     	    
 	    </h2>
 	    </tr>
 	    
@@ -225,6 +236,23 @@ var pageName='<%=pageName%>';
   </body>
 <script>
 document.getElementById("dateFrom").value=dateFrom!="null"?dateFrom:"";
+function pushEvent(acctInfo, uAction, initial,Cust1)
+{
+// 	_gaq.push([ '_setCustomVar', 1, 'ConnId', Cust1 ]);
+	console.info(acctInfo, uAction, initial);
+// 	_gaq.push([ '_trackEvent', acctInfo, uAction, initial ]);
+//ga('set', 'dimension1', Cust1);
+//ga('set', 'dimension2', new Date());
+
+	//ga('send', acctInfo, uAction, initial);
+	ga('send', {
+		  'hitType': 'event',          // Required.
+		  'eventCategory': acctInfo,   // Required.
+		  'eventAction':uAction,
+		  'eventValue': initial
+		});
+	}
+
 
 </script>
 </html>

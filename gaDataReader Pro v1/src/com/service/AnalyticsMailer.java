@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Properties;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -24,14 +25,14 @@ import org.codehaus.jackson.map.JsonMappingException;
 public class AnalyticsMailer {
 
 
-	public void initMail(String msgPart,String msgBody,String date, String to ,String subject,String cc,String bcc) throws UnsupportedEncodingException
+	public void initMail(String msgPart,String msgBody,String date, String to ,String subject,String cc,String bcc, String filePrefix) throws UnsupportedEncodingException
 	{
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
 		
 		try {
 		    Message msg = new MimeMessage(session);
-		    msg.setFrom(new InternetAddress("shashank.ashokkumar@a-cti.com", "GaDataService Mailer"));
+		    msg.setFrom(new InternetAddress("shashank.ashokkumar@a-cti.com", "DataService Mailer"));
 //		    msg.addRecipient(Message.RecipientType.TO,
 //		     new InternetAddress("shashanksworld@gmail.com", "Mr. Shashank"));
 		    if(to!=null&&!to.equals("") )
@@ -46,7 +47,7 @@ public class AnalyticsMailer {
 		    	
 				//Body Part 1
 		    	MimeBodyPart attachment = new MimeBodyPart();
-				attachment.setFileName( "analyticsRawData_" +date+ ".csv" );
+				attachment.setFileName( filePrefix +date+ ".csv" );
 				attachment.setContent(msgPart , "application/csv" );
 				multipart.addBodyPart( attachment );
 				

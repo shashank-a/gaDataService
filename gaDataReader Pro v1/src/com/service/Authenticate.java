@@ -232,7 +232,7 @@ public class Authenticate
 					}else
 					{
 						AnalyticsMailer am=new AnalyticsMailer();
-						am.initMail("","No data Found in gaData","","shashank.ashokkumar@a-cti.com","GA Exception","","");
+						am.initMail("","No data Found in gaData","","shashank.ashokkumar@a-cti.com","GA Exception","","", null);
 					}
 					
 					compressData=ZipData.compressBytes(GaDatastoreService.convertObjectToJson(rows).toString());

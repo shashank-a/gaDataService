@@ -51,5 +51,11 @@
     	<schedule>every day 10:10</schedule>
     	<target>gabackend</target>
   </cron> 
+  <cron>
+    <url>/parseGAJSON.do</url>
+    	<description>parseJSON</description>
+    	<schedule>every day 11:00</schedule>
+    	<target>gabackend</target>
+  </cron>
   
 </cronentries>

@@ -68,8 +68,7 @@ public class ActionServlet {
 	{
 		System.out.println("inside getGAData");
 		System.out.println("state::;"+req.getParameter("state"));
-	
-		try{		
+	try{		
 			String accessToken="";
 			GaData gaData=null;
 			//String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel";
@@ -1035,7 +1034,7 @@ public class ActionServlet {
     	
     	try {
     		AnalyticsMailer am=new AnalyticsMailer();
-			am.initMail("",testMessage,"","shashank.ashokkumar@a-cti.com","GA Exception","","");
+			am.initMail("",testMessage,"","shashank.ashokkumar@a-cti.com","GA Exception","","", null);
 			
 			res.setCharacterEncoding("UTF-8");
 			res.getWriter().println("Mail Sent");
