@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+  xmlns="http://java.sun.com/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                      http://java.sun.com/xml/ns/javaee/application_5.xsd"
+  version="5">
+
+  <description>GA Data Service</description>
+  <display-name>GaDataService</display-name>
+
+  <!-- Default Module -->
+  
+  <module>
+    <web>
+      <web-uri>default</web-uri>
+      <context-root>defaultcontextroot</context-root>
+    </web>
+  </module>
+  
+  <module>
+    <web>
+      <web-uri>gabackend</web-uri>
+      <context-root>gabackend</context-root>
+    </web>
+  </module>
+  
+  
+</application>
