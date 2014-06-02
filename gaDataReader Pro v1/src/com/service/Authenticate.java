@@ -1,67 +1,66 @@
 package com.service;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;
-import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessProtectedResource;
-import com.google.api.client.auth.oauth2.CredentialStore;
-import com.google.api.client.extensions.appengine.auth.oauth2.AppEngineCredentialStore;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+
+
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
-
-
-
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson.JacksonFactory;
-import com.google.api.services.analytics.Analytics;
+import com.google.api.services.analytics.*;
 import com.google.api.services.analytics.Analytics.Data.Ga.Get;
 import com.google.api.services.analytics.model.GaData;
 import com.google.api.services.analytics.model.GaData.ColumnHeaders;
-import com.google.api.client.googleapis.*;
-import com.google.api.client.googleapis.auth.clientlogin.*;
-import com.google.api.client.googleapis.json.*;
-import com.google.api.client.http.*;
+
+
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.json.JSONObject;
+
+
 import com.util.DataStoreManager;
 import com.util.GAUtil;
 import com.util.ZipData;
 
-import java.io.*;
-
-
-
-@SuppressWarnings( "deprecation" )
 public class Authenticate
 	{
 	 
-	final String CLIENT_ID = "171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com";
-	final String CLIENT_SECRET = "UpM_LVYRCLogNP4TTXIUg94a";
-	final String REDIRECT_URL = "http://www.gadataservice.appspot.com/oauth2callback.do";
-	final String SCOPE="https://www.googleapis.com/auth/analytics.readonly";
-	final String APPLICATION_NAME="GA Web Service";
-	final String USER_ID="shashank.ashokkumar@a-cti.com";
+	final static String CLIENT_ID = "171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com";
+	final static String CLIENT_SECRET = "UpM_LVYRCLogNP4TTXIUg94a";
+	final static String REDIRECT_URL = "http://www.gadataservice.appspot.com/oauth2callback.do";
+	final static String SCOPE="https://www.googleapis.com/auth/analytics.readonly";
+	final static String APPLICATION_NAME="GA Web Service";
+	final static String USER_ID="shashank.ashokkumar@a-cti.com";
 	static  String TABLE_ID = "56596375";
-	
+	final static JacksonFactory JSON_FACTORY = new  JacksonFactory();
+    final static HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 	
 	
 	
 	
 		public GoogleTokenResponse getData(String authorizationCode) throws IOException
 			{
-		 System.out.println("Auth code"+authorizationCode);
+		 System.out.println("Auth code::"+authorizationCode);
 				// Use the authorization code to get an access token and a refresh token.
+		 
+		 if(authorizationCode==null)
+		 {
+			 return null;
+		 }
 		 GoogleTokenResponse res=null;
+		 
 		
 		try {
 		  res = new GoogleAuthorizationCodeTokenRequest(new NetHttpTransport(), new JacksonFactory(),
@@ -95,26 +94,24 @@ public class Authenticate
 		}
 		public GoogleTokenResponse getNewToken(String refreshToken) throws IOException
 		{ String token="";
-		System.out.println("GoogleRefreshTokenRequest...");
-		GoogleTokenResponse tokenresponse= new GoogleRefreshTokenRequest(new NetHttpTransport(),new  JacksonFactory() , refreshToken, CLIENT_ID, CLIENT_SECRET).execute(); 
-	
-			return tokenresponse;
+//		System.out.println("GoogleRefreshTokenRequest...");
+//		GoogleTokenResponse tokenresponse= new GoogleRefreshTokenRequest(new NetHttpTransport(),new  JacksonFactory() , refreshToken, CLIENT_ID, CLIENT_SECRET).execute(); 
+//	
+//			return tokenresponse;
+		return null;
 			
 		}
 		public void storeData(GoogleCredential googleCredential)
 		{
-			 CredentialStore credentialStore=new AppEngineCredentialStore();
-			credentialStore.store( USER_ID,googleCredential);
-			
 			System.out.println("Credentials stored::");
 			System.out.println("loading Data::::");
-			System.out.println((loadData(new GoogleCredential())).getRefreshToken());
+			//System.out.println((loadData(new GoogleCredential())).getRefreshToken());
 			
 		}
 		public GoogleCredential loadData(GoogleCredential googleCredential)
 		{
-			 CredentialStore credentialStore=new AppEngineCredentialStore();
-			credentialStore.load(USER_ID,googleCredential);
+			 //CredentialStore credentialStore=new AppEngineCredentialStore();
+			//credentialStore.load(USER_ID,googleCredential);
 			System.out.println("googleCredential  loaded  acces token::"+googleCredential.getAccessToken());
 			return googleCredential;
 		}
@@ -126,36 +123,38 @@ public class Authenticate
 				tableId=TABLE_ID;
 			}
 			String token=""; 
-			NetHttpTransport netHttpTransport = new NetHttpTransport();
-			JacksonFactory jacksonFactory = new JacksonFactory();
-			 GoogleCredential credential  ;
-			System.out.println(response.getAccessToken());
+			//NetHttpTransport netHttpTransport = new NetHttpTransport();
+			
+			//JsonFactory jsonFactory=new JacksonFactory();
+			GoogleCredential credential=null;
+			//System.out.println(response.getAccessToken());
 			
 			GaData gaData=null;
+			try
+			{
+			 credential=new GoogleCredential().setAccessToken(accessToken);
+			//credential=(GoogleCredential)getOAuth2Credential(response);
 			
-			 credential=new GoogleCredential().setFromTokenResponse(response);
 			 
-			 if(!flag)
-			 {if(credential.getRefreshToken()!=null)
-				 storeData(credential);
-			 }
-			
-			 credential= new GoogleCredential().setAccessToken(accessToken);
+//			 if(!flag)
+//			 {if(credential.getRefreshToken()!=null)
+//				 storeData(credential);
+//			 }
 			 
-			 System.out.println("credential  refresh tokens::"+credential.getRefreshToken());
-			 Analytics analytics = Analytics.builder(netHttpTransport, jacksonFactory)
-				      .setHttpRequestInitializer(credential)
-				      .setApplicationName(APPLICATION_NAME)
-				      .build();
+//			 Analytics analytics = Analytics.Builder(HTTP_TRANSPORT, JSON_FACTORY,credential)
+//				      .setHttpRequestInitializer(credential)
+//				      .setApplicationName(APPLICATION_NAME)
+//				      .build();
+			 Analytics analytics=getAnalayticsObject(accessToken);
 			 
 			
 			 System.out.println("analytics Build");
 			int k=0,z=9999,max=9999;
-			try
-				{
-				
+			
+				//getResultsData("ga:"+tableId,"ga:totalEvents",dimensions,dateFrom,dateFrom,"","","","9999","1",analytics);
 				
 				System.out.println(dimensions);
+				
 					Get apiQuery = analytics.data().ga().get("ga:"+tableId,dateFrom,dateTo,"ga:visits");
 					apiQuery.setDimensions( dimensions );
 					apiQuery.setMetrics("ga:totalEvents");
@@ -262,7 +261,10 @@ public class Authenticate
 					// TODO Auto-generated catch block
 				
 					e.printStackTrace();
-				} 
+				} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
 			
 			
 			//return null;
@@ -309,7 +311,144 @@ public class Authenticate
 			 return null;
 		}
 		
-		
-		
+//		private static GoogleCredential getOAuth2Credential(GoogleTokenResponse tokenResponse) throws Exception {
+//
+//		    // Create the OAuth2 credential with custom refresh listener.
+//		    GoogleCredential credential = new GoogleCredential.Builder()
+//		        .setTransport(new NetHttpTransport())
+//		        //.setJsonFactory(new JacksonFactory())
+//		        .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
+//		        .addRefreshListener(new CredentialRefreshListener() {
+//		          public void onTokenResponse(Credential credential, TokenResponse tokenResponse) {
+//		            // Handle success.
+//		            System.out.println("Credential was refreshed successfully.");
+//		          }
+//
+//		          public void onTokenErrorResponse(Credential credential,
+//		              TokenErrorResponse tokenErrorResponse) {
+//		            // Handle error.
+//		            System.err.println("Credential was not refreshed successfully. "
+//		                + "Redirect to error page or login screen.");
+//		          }
+//		        })
+//
+//		        // You can also add a credential store listener to have credentials
+//		        // stored automatically.
+//		        //.addRefreshListener(new CredentialStoreRefreshListener(userId, credentialStore))
+//		        .build();
+//
+//		    // Set authorized credentials.
+//		    credential.setFromTokenResponse(tokenResponse);
+//
+//		    // Though not necessary when first created, you can manually refresh the
+//		    // token, which is needed after 60 minutes.
+//		    credential.refreshToken();
+//
+//		    return credential;
+//		  }
+
+		public String  updateAccessTokenWithResfreshToken(String refreshToken) {		
+			
+			String accessToken 	= "";
+			JSONObject userDetails	= null;
+			String email			= null;
+			String tokenUrl="https://accounts.google.com/o/oauth2/token";
+			
+			ObjectMapper mapper = new ObjectMapper();
+			try{
+		        JSONObject jsonObject = new JSONObject();
+		        jsonObject.put("client_id", CLIENT_ID);
+		        jsonObject.put("client_secret", CLIENT_SECRET);
+		        jsonObject.put("refresh_token", refreshToken);
+		        jsonObject.put("grant_type", "refresh_token");
+		        
+				String payload ="client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&refresh_token="+refreshToken+"&grant_type=refresh_token";
+
+		        String responseString = UrlFetchServiceUtil.httpRequest(tokenUrl, payload, "POST", "application/x-www-form-urlencoded");
+		        
+				System.out.println("got new accesss token"+responseString);
+				
+				TypeReference<HashMap<String,String>> typeRef = new TypeReference<HashMap<String,String>>() {};
+				HashMap<String,String> resultMap = mapper.readValue(responseString.toString(), typeRef);
+				accessToken =resultMap.get("access_token");
+			}
+			catch(Exception e){
+				StringWriter sw = new StringWriter();
+				PrintWriter pw 	= new PrintWriter(sw);
+				e.printStackTrace(pw);
+				System.out.println("Error " + sw.toString());
+			}
+			return accessToken;
+			
+		} 
+		  public static Analytics getAnalayticsObject(String accesstoken){
+			  GoogleCredential credential =null;
+		    	Analytics analytics =null;
+		    	credential= new GoogleCredential.Builder().setClientSecrets(clientSecrets()).setJsonFactory(JSON_FACTORY).setTransport(HTTP_TRANSPORT).build();
+		    	credential.setAccessToken(accesstoken);
+//		    	//log.info("credentil accesstoken"+credential.getAccessToken());
+		    	 analytics = new Analytics.Builder(HTTP_TRANSPORT,JSON_FACTORY,credential).setApplicationName(APPLICATION_NAME).build();
+		    	 
+		    	//log.info("Analytics obj"+analytics.getRootUrl()+""+analytics.getBaseUrl());
+		    	credential = null;
+		    	return analytics;
+		    	
+		    }
+		  static public GoogleClientSecrets clientSecrets(){
+				try{
+					return GoogleClientSecrets.load(JSON_FACTORY,new InputStreamReader(Authenticate.class.getResourceAsStream("client_secrets.json")));
+				}catch(Exception e){
+					System.out.println("Problem in getting Client Secrets");
+				}
+				return null;
+				
+			}
+		  public static String  getResultsData(String table_id, String metrics,String dimension, String startDate, String endDate,String filter, String segment, String sort, String maxResult, String startIndex,Analytics analytics) 
+			{
+			
+			  System.out.println("Get the result for analytics");
+				GaData value = null;			
+				if(segment==null)segment="" ;
+				if(sort==null)sort = "" ;
+				int maxResults;
+				if(maxResult == null)
+					maxResults =10000;
+				else
+					maxResults= Integer.parseInt(maxResult);
+				Get apiQuery;
+				try {
+				//value = analytics.data().ga().get(table_id, startDate, endDate, metrics).setDimensions(dimension).setSegment(segment).setFilters(filter).setSort(sort).setOutput("dataTable").setMaxResults(50).execute().toPrettyString();
+					apiQuery = analytics.data().ga().get(table_id, startDate, endDate, metrics);
+					if(dimension.length() !=0){
+						 apiQuery.setDimensions(dimension);
+					 }
+					if(filter.length()!=0){
+						apiQuery.setFilters(filter);
+					}
+					if(segment.length()!=0){
+						apiQuery.setSegment(segment);
+					}
+					if(sort.length()!=0){
+						apiQuery.setSort(sort);
+					}
+					if(startIndex != null){
+						apiQuery.setStartIndex(Integer.parseInt(startIndex));
+					}
+//					if(maxResults < 1000){
+//						apiQuery.setMaxResults(maxResults);
+//					}else{
+//						apiQuery.setMaxResults(999);
+//					}
+					System.out.println("Data send to analytics");
+					value = apiQuery.setMaxResults(maxResults).execute();
+					System.out.println("Data receive from analytics");
+					//log.info(value.toString());
+					return value.toString();
+				} catch (Exception e) {	
+					System.out.println(e.getMessage());
+					return e.getMessage();
+				}
+			
+			}
 		
 	}

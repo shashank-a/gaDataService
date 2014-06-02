@@ -32,6 +32,7 @@ import com.util.ZipData;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.Vector;
@@ -82,21 +83,30 @@ public class GAScheduler {
 			}
 			
 			String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
-			
+			String accessToken="";
 			GaData gaData=null;
 			ArrayList<ArrayList<?>> rowData=null;
 			ArrayList<String> gaJson=null;
 			int z=0;
-				
+			GaDatastoreService datastoreService= new GaDatastoreService();
+			Authenticate  authenticate =new Authenticate();
+			
+			String jsonData=new GaDatastoreService().getTempData("shashank.ashokkumar@a-cti.com","refresh_token");
+    		HashMap hm=datastoreService.convertJsonToMap(jsonData);
+    		if(hm.get("refresh_token")!=null)
+    		{System.out.println("refresh Toekn found");
+    			 accessToken = authenticate.updateAccessTokenWithResfreshToken(hm.get("refresh_token").toString());
+    			System.out.println("accessToken");
+    			//temp=(GoogleTokenResponse)authenticate.getNewToken(hm.get("refresh_token").toString());
+    		}else
+    		{
+    			System.out.println("no Refresh token");
+    		}
 					//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
 					ArrayList<GaData> list=new ArrayList<GaData>();
-					Authenticate  authenticate =new Authenticate();
-					
-					String temptoken=(authenticate.loadData(new GoogleCredential())).getRefreshToken();
-					
-						GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
-						System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
-						authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
+						
+						//System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
+						authenticate.gaQurey(null,accessToken, date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
 						System.out.println(list.size());
 						System.out.println("Ga Data --ArrayList fetched and stored");
 						
@@ -301,7 +311,7 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 
 @RequestMapping("/fetchV2Outbound.do")	
 public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
-{
+{System.out.println("fetchV2Outbound");
 	ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
 	AnalyticsMailer am= new AnalyticsMailer();
 	try {
@@ -309,7 +319,7 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 		String dateTo=req.getParameter("dateTo");
 		String dateRange=req.getParameter("range");
 		String date=null;
-		if(dateFrom==null)
+		if(dateFrom==null && dateTo==null)
 		{
 			Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -321,9 +331,8 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 		dateTo=date;
 		}
 		else
-		{
+		{System.out.println("Setting date Range");
 			date =dateFrom;
-			dateTo=dateFrom;
 			
 		}
 		if(dateRange==null)
@@ -333,21 +342,26 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 		
 		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
 		
-		GaData gaData=null;
-		ArrayList<ArrayList<?>> rowData=null;
-		ArrayList<String> gaJson=null;
-		int z=0;
-			
-				//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
 				ArrayList<GaData> list=new ArrayList<GaData>();
 				Authenticate  authenticate =new Authenticate();
 				ArrayList<ArrayList<?>> arrayList=null;
+				String accessToken="";
 		    	String processedData=null;
-				String temptoken=(authenticate.loadData(new GoogleCredential())).getRefreshToken();
+		    	String jsonData=new GaDatastoreService().getTempData("shashank.ashokkumar@a-cti.com","refresh_token");
+	    		GaDatastoreService datastoreService=null;
+				HashMap hm=datastoreService.convertJsonToMap(jsonData);
+	    		if(hm.get("refresh_token")!=null)
+	    		{System.out.println("refresh Toekn found");
+	    			 accessToken = authenticate.updateAccessTokenWithResfreshToken(hm.get("refresh_token").toString());
+	    			System.out.println("accessToken");
+	    			//temp=(GoogleTokenResponse)authenticate.getNewToken(hm.get("refresh_token").toString());
+	    		}else
+	    		{
+	    			System.out.println("no Refresh token");
+	    		}
 				
-					GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
-					System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
-					authenticate.gaQurey(temp,temp.getAccessToken(), dateFrom, dateTo,true,list,dimensions, resourceBundle.getString("V2App"),"ga:eventAction==Call Transfer,ga:eventAction==Dialing", "monthly" );
+					
+					authenticate.gaQurey(null,accessToken, dateFrom, dateTo,true,list,dimensions, resourceBundle.getString("V2App"),"ga:eventAction==Call Transfer,ga:eventAction==Dialing", "monthly" );
 					System.out.println(list.size());
 					System.out.println("Ga Data --ArrayList fetched and stored");
 					arrayList=(new GaDatastoreService()).fetchGADataBatch(date,dateTo,dimensions,GAUtil.getkeyElementFromDimension(dimensions), "V2Outbound", dateRange);
@@ -357,12 +371,10 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 		    		
 		    		String msgText = "Please Find Attached V2 Outbound Report for "+date;
 		    		if(dateRange!=null && dateRange.equals("monthly")){
-		    			
 		    					msgText = " Please Find Attached V2 Outbound Report for date  "+dateFrom+"->"+dateTo;
-		    					
 		    			}
 		    		
-		    		am.initMail(processedData,msgText,date,"shashank.ashokkumar@a-cti.com","V2 Outbound Report","naresh.taluri@a-cti.com,dev.clientwebaccess@a-cti.com","", "V2Outbound_");
+		    		am.initMail(processedData,msgText,date,"shashank.ashokkumar@a-cti.com","V2 Outbound Report","","", "V2Outbound_");
 		    		
 					
 	} catch (IOException e) {
@@ -444,6 +456,64 @@ public void parseGAJSON(HttpServletRequest req,HttpServletResponse res)
 		e.printStackTrace();
 	}
 	
+	
+}
+
+
+@RequestMapping("/test.do")	
+public void test(HttpServletRequest req,HttpServletResponse res)
+{
+	ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
+	try {
+		String dateFrom=req.getParameter("dateFrom");
+		String date=null;
+		if(dateFrom==null)
+		{
+			Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		cal.roll(Calendar.DATE, false);
+		System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
+				+ sdf.getTimeZone());
+		date = (sdf.format(cal.getTime())).toString();
+		}
+		else
+		{
+			date =dateFrom;
+		}
+		
+		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
+		
+		GaData gaData=null;
+		ArrayList<ArrayList<?>> rowData=null;
+		ArrayList<String> gaJson=null;
+		int z=0;
+			
+				//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
+				ArrayList<GaData> list=new ArrayList<GaData>();
+				Authenticate  authenticate =new Authenticate();
+				
+				String temptoken=(authenticate.loadData(new GoogleCredential())).getRefreshToken();
+				
+					GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
+					System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
+					authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
+					System.out.println(list.size());
+					System.out.println("Ga Data --ArrayList fetched and stored");
+					
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		AnalyticsMailer am= new AnalyticsMailer();
+		 try {
+			am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","", null);
+		} catch (UnsupportedEncodingException ex) {
+			// TODO Auto-generated catch block
+			ex.printStackTrace();
+		}
+	
+	}
+				
+
 	
 }
 

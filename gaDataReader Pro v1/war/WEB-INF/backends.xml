@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <backends>
 	<backend name="gabackend">
-		<class>B2</class>
+		<class>B4</class>
 		<options>
 			<dynamic>true</dynamic>
 			<public>true</public>

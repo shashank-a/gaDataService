@@ -3,20 +3,27 @@ package com.action;
 
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
+import java.util.TreeMap;
 
 import org.json.CDL;
 import org.json.JSONArray;
@@ -28,17 +35,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.type.TypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.account.AccountDetails;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.analytics.model.GaData;
+import com.google.appengine.api.urlfetch.URLFetchServicePb.URLFetchRequest;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
+import com.google.gson.JsonObject;
 import com.service.AnalyticsMailer;
 import com.service.Authenticate;
 import com.service.GADataService;
@@ -48,17 +63,30 @@ import com.util.AppCacheManager;
 import com.util.AppMemCacheManager;
 import com.util.DataStoreManager;
 import com.util.GAUtil;
+import com.util.GaBlobstoreService;
 import com.util.ZipData;
+
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.util.ResourceBundle;
 import java.util.zip.DataFormatException;
 
+import com.service.UrlFetchServiceUtil;
 import com.util.CsvUtil;
 
 import java.beans.*;
 
 @Controller
 public class ActionServlet {
+	
+	
+	final static String CLIENT_ID = "171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com";
+	final static String CLIENT_SECRET = "UpM_LVYRCLogNP4TTXIUg94a";
+	final static String REDIRECT_URL = "http://www.gadataservice.appspot.com/oauth2callback.do";
+	final static String SCOPE="https://www.googleapis.com/auth/analytics.readonly";
+	final static String APPLICATION_NAME="GA Web Service";
+	final static String USER_ID="shashank.ashokkumar@a-cti.com";
+	static  String TABLE_ID = "56596375";
 	
 	private static final Logger mLogger = Logger.getLogger(ActionServlet.class.getPackage().getName());
 	AppCacheManager appcachemanager= new AppCacheManager();
@@ -88,17 +116,17 @@ public class ActionServlet {
 			String dateFrom=req.getParameter("dateFrom");
 			String rawDataFlag=req.getParameter("rawDataFlag");
 			String tableId=req.getParameter("tableId");
-			String dimensions=req.getParameter("dimension");
+			//String dimensions=req.getParameter("dimension");
 			if(req.getParameter("state")!=null)
 			{
 			JSONObject gaFilters=new JSONObject(req.getParameter("state")); 
-			code=gaFilters.getString("code");
+			//code=gaFilters.getString("code");
 			dateFrom=gaFilters.getString("dateFrom");
-			rawDataFlag=gaFilters.getString("rawDataFlag");
+			//rawDataFlag=gaFilters.getString("rawDataFlag");
 			tableId=gaFilters.getString("tableId");
-			dimensions=gaFilters.getString("dimension");
+			//dimensions=gaFilters.getString("dimension");
 			}
-			System.out.println("dimensions::"+dimensions);
+			//System.out.println("dimensions::"+dimensions);
 			//String dateTo=req.getParameter("dateTo");
 						
 			System.out.println("token:::"+token);
@@ -107,7 +135,8 @@ public class ActionServlet {
 			System.out.println("tableId::"+tableId+"----"+resourceBundle.getString(tableId));
 			Authenticate  authenticate =new Authenticate();
 			System.out.println("instance created");
-			 dimensions=resourceBundle.getString(dimensions);
+			 
+			String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
 			if(dateFrom!=null)
 			{System.out.println("Fetching row data");
 				//rowData=GaDatastoreService.fetchGAData(dateFrom,dimensions, GAUtil.getkeyElementFromDimension(dimensions),tableId);
@@ -118,18 +147,19 @@ public class ActionServlet {
 				
 							rowData=new ArrayList<ArrayList<?>>();
 							//if(token.equals("null")||token.equals(""))
+							System.out.println("checking token::");
 							if(token==null)
 							{
 								System.out.println("no session  obj");
 								googleTokenResponse=authenticate.getData(code);
-								if(googleTokenResponse==null)
+								if(googleTokenResponse==null )
 								{
 									//NO response token  req redirected to get access token...
 									System.out.println("getAuth Code");
 									
 									res.sendRedirect(getAuthCode(req,res));
 								}
-								if(googleTokenResponse.getRefreshToken()!=null)					
+								else if(googleTokenResponse.getRefreshToken()!=null)					
 								{
 									authenticate.gaQurey(googleTokenResponse, googleTokenResponse.getAccessToken(), dateFrom, dateFrom,false,list,dimensions, resourceBundle.getString(tableId), null, null);
 									accessToken="accessToken";
@@ -340,34 +370,47 @@ public class ActionServlet {
 			
 	}
 	
-	
+	@ResponseBody
 	@RequestMapping("/oauth2callback.do")
-	public void showDefaultPage(HttpServletRequest req, HttpServletResponse res)
+	public void oauth2callback(HttpServletRequest request, HttpServletResponse res)
 	{
-	String code=req.getParameter("code");
-	String state=req.getParameter("state");
-	
-	System.out.println("Auth Code received::::"+code);
-	System.out.println("state received::::"+state);
-	req.setAttribute("code",code);
-	try {
-		JSONObject gaFilter= new JSONObject(state);
-		System.out.println(gaFilter.get("tableId"));
-		System.out.println(gaFilter.get("rawDataFlag"));
-		System.out.println(gaFilter.get("token"));
-		getGAData(req,res);
-	} catch (JSONException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (NoSuchMethodException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+
+		String refreshToken	= "";
+		String accessToken 	= "";
+		JSONObject userDetails	= null;
+		String email			= null;
+		String address="https://accounts.google.com/o/oauth2/token";
+
+		String code		= request.getParameter("code");
+		String error 	= request.getParameter("error");
+		String grant_type="authorization_code";
+		String offline = "offline";
+		ObjectMapper mapper = new ObjectMapper();
+
+		String payload ="code="+code+"&client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&redirect_uri="+REDIRECT_URL+"&grant_type="+grant_type;
+		System.out.println(payload);
+		try{
+			String responseString = UrlFetchServiceUtil.httpRequest(address, payload, "POST", "application/x-www-form-urlencoded");
+			System.out.println("The response String "+responseString);
+			TypeReference<HashMap<String,String>> typeRef = new TypeReference<HashMap<String,String>>() {};
+			HashMap<String,String> resultMap = mapper.readValue(responseString.toString(), typeRef);
+			System.out.println("The responseMap "+resultMap);
+			(new GaDatastoreService()).storeTempData("shashank.ashokkumar@a-cti.com",resultMap,"refresh_token");
+			
+			
+			
+		}
+		catch(Exception e){
+			StringWriter sw = new StringWriter();
+			PrintWriter pw 	= new PrintWriter(sw);
+			e.printStackTrace(pw);
+			System.out.println("Error " + sw.toString());
+		}
 	}
+		
+
 	
-	
-	
-	
-	}
+
 	
 	public String  getAuthCode(HttpServletRequest req,HttpServletResponse res) 
 	{	
@@ -406,6 +449,7 @@ public class ActionServlet {
 	 try
 		{
 		//Adding  filter params to google API request..
+		 
 		 String redirectString="https://accounts.google.com/o/oauth2/auth?client_id="+"171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com"+"&redirect_uri="+redirectUri+"&response_type=code&scope=https://www.googleapis.com/auth/analytics.readonly&access_type=offline&approval_prompt=force&state="+gaFilter;
 		 System.out.println("redirect URI::::"+redirectString);	
 		 //res.sendRedirect(redirectString);
@@ -781,12 +825,13 @@ public class ActionServlet {
 						
 							GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
 							System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
-							
 							authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
 							System.out.println("Ga Data --ArrayList");
 							System.out.println(list.size());
+						
 						if(list.size()>0)
-						{	rowData=new ArrayList<ArrayList<?>>();
+						{	
+							rowData=new ArrayList<ArrayList<?>>();
 								//gaJson=new ArrayList<String>();
 						
 							while(z<list.size())
@@ -1045,4 +1090,84 @@ public class ActionServlet {
 		}
     	
    }
+    
+	@RequestMapping("/gaGCSService.do")
+	public void gaGCSService(HttpServletRequest req,HttpServletResponse res)
+	{String redirectString="";
+	String accessToken;
+    	//String code=req.getParameter("code");
+    	try {
+//    		HttpTransport httpTransport = new NetHttpTransport();
+//		    JacksonFactory jsonFactory = new JacksonFactory();
+//		    InputStream is = Authenticate.class.getResourceAsStream("client_secrets.json");
+//		    GoogleClientSecrets clientSecrets =
+//		    GoogleClientSecrets.load(jsonFactory,new InputStreamReader(is));
+//			
+//			System.out.println(clientSecrets);
+    		
+    		
+    		GaDatastoreService datastoreService= new GaDatastoreService();
+    		//System.out.println("Calling refresh:::"+updateAccessTokenWithResfreshToken("1/y4LrLLimtZcMGFSHgJaM_9PP-WuudOQraUHf-MTTWNE"));
+    		String jsonData=new GaDatastoreService().getTempData("shashank.ashokkumar@a-cti.com","refresh_token");
+    		HashMap hm=datastoreService.convertJsonToMap(jsonData);
+    		if(hm.get("refresh_token")!=null)
+    		{System.out.println("refresh Toekn found");
+    		
+    			accessToken=new Authenticate().updateAccessTokenWithResfreshToken(hm.get("refresh_token").toString());
+    			System.out.println("accessToken");
+    			//authenticate.gaQurey(null,accessToken, "20140516", "20140516",true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
+    			
+    		}else
+    		{
+    	String redirectUri="http://www.gadataservice.appspot.com/oauth2callback.do";
+   		  redirectString="https://accounts.google.com/o/oauth2/auth?client_id="+"171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com"+"&redirect_uri="+redirectUri+"&response_type=code&scope=https://www.googleapis.com/auth/analytics.readonly&access_type=offline&approval_prompt=force";
+   		 System.out.println("redirect URI::::"+redirectString);
+   		res.sendRedirect(redirectString);
+   		}
+
+   				} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+		 
+	}
+	
+		public String UrlFetchServiceUtil(String tokenUrl, String payload, String reqType,String contentType)
+	{
+		BufferedReader reader = null;
+		HttpURLConnection connection = null;
+		String lResponseString = "";
+		String lRespObj = "";
+		String respObj = null;
+		try {
+			URL url = new URL( tokenUrl );
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setConnectTimeout( 60000 );
+			connection.setRequestMethod( "POST" );
+			connection.setDoOutput( true );
+			connection.setDoInput( true );
+			connection.setRequestProperty( "content-type" , contentType );
+			OutputStreamWriter writer = new OutputStreamWriter( connection.getOutputStream() );
+			
+			System.out.println("tokenString::"+tokenUrl);
+			writer.write( payload);
+			writer.flush();
+			reader = new BufferedReader( new InputStreamReader( connection.getInputStream() ) );
+			while ( ( lResponseString = reader.readLine() ) != null )
+				{
+					respObj = lResponseString;
+				}
+			
+			System.out.println(respObj);
+		} catch ( IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return respObj;
+	}
+	
+	
+    
 }

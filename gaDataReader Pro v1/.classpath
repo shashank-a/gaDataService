@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/ActiveResponseUtil.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-beanutils-1.7.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-httpclient-3.1-rc1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang-2.3.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/displaytag-1.2.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-client-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-client-appengine-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-client-servlet-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-services-analytics-v3-rev79-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-services-oauth2-v2-rev51-1.17.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-http-client-jackson2-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-oauth-client-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-oauth-client-appengine-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-oauth-client-servlet-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/gson-2.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-11.0.2.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-all-1.9.4.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-core-2.1.3.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-dataformat-csv-2.1.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jdo-api-3.0.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/json-20070829.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jsr107cache-1.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jta-1.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/openid4java-0.9.5.593-gaehacks.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.restlet.ext.net.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.restlet.ext.servlet.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.restlet.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-httpclient-3.1-rc1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-logging-1.0.4.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-client-1.7.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-client-appengine-1.7.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-client-servlet-1.7.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gson-2.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-all-1.9.4.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jsr107cache-1.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/openid4java-0.9.5.593-gaehacks.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-analytics-v3-rev3-java-1.4.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-oauth-client-1.7.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-beanutils-1.7.0.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-collections-3.2.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang-2.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-client-1.11.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-api-client-appengine-1.11.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-http-client-1.7.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/google-oauth-client-appengine-1.11.0-beta.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-11.0.2.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/log4j-1.2.14.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.springframework.asm-3.0.3.RELEASE.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.springframework.beans-3.0.3.RELEASE.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.springframework.context-3.0.3.RELEASE.jar"/>
@@ -33,9 +39,10 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.springframework.expression-3.0.3.RELEASE.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.springframework.web-3.0.3.RELEASE.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/org.springframework.web.servlet-3.0.3.RELEASE.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-dataformat-csv-2.1.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/ActiveResponseUtil.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/json-20070829.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-http-client-1.16.0-rc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/java-json.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

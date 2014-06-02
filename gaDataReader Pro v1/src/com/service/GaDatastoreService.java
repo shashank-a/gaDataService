@@ -6,9 +6,11 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.zip.DataFormatException;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonGenerationException;
@@ -178,6 +180,16 @@ public class GaDatastoreService
 			} );
 			return rowDataArrayList;
 		}
+	    public static HashMap <String,String> convertJsonToMap( String obj )	throws JsonParseException ,
+		JsonMappingException ,
+		IOException
+		{
+			HashMap <String,String> rowDataArrayList = mapper.readValue( obj ,
+			new TypeReference <HashMap <String,String>>()
+			{
+			} );
+			return rowDataArrayList;
+		}
 	    
 	    // methods to read Datastore in batch operation...
 	    
@@ -268,6 +280,43 @@ public class GaDatastoreService
 	    
 	    	return ar;
 	    			
+	    }
+	    
+	    
+	    public String storeTempData(String key, Object obj, String dimension) throws JsonMappingException
+	    {
+	    	try {
+				byte [] compressData=ZipData.compressBytes(convertObjectToJson(obj).toString());
+				System.out.println("DataCompressed");
+				
+				//setting into datastore
+				DataStoreManager.set(key,dimension,compressData);
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return "";
+	    }
+	    
+	    public String getTempData(String key, String dimension) throws JsonMappingException
+	    {String jsonData="";
+	    	try {
+				
+				System.out.println("DataCompressed");
+				//setting into datastore
+				
+				byte[] rowDataInByte =DataStoreManager.get(key,dimension);
+				jsonData=ZipData.extractBytes(rowDataInByte);
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (DataFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+    		return jsonData;
 	    }
 	    
 	    
