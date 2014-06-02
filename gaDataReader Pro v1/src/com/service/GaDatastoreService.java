@@ -42,7 +42,6 @@ public class GaDatastoreService
 		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 		mapper.getJsonFactory().setCharacterEscapes(new JSONCharacterEscapes());
 		
-		
 	}
 	 public static void storeGAData(String dateFrom, ArrayList<ArrayList<?>> rows, String dimension, String keyElement, String app) throws IOException
 	    {

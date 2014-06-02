@@ -460,62 +460,7 @@ public void parseGAJSON(HttpServletRequest req,HttpServletResponse res)
 }
 
 
-@RequestMapping("/test.do")	
-public void test(HttpServletRequest req,HttpServletResponse res)
-{
-	ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
-	try {
-		String dateFrom=req.getParameter("dateFrom");
-		String date=null;
-		if(dateFrom==null)
-		{
-			Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		cal.roll(Calendar.DATE, false);
-		System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
-				+ sdf.getTimeZone());
-		date = (sdf.format(cal.getTime())).toString();
-		}
-		else
-		{
-			date =dateFrom;
-		}
-		
-		String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
-		
-		GaData gaData=null;
-		ArrayList<ArrayList<?>> rowData=null;
-		ArrayList<String> gaJson=null;
-		int z=0;
-			
-				//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
-				ArrayList<GaData> list=new ArrayList<GaData>();
-				Authenticate  authenticate =new Authenticate();
-				
-				String temptoken=(authenticate.loadData(new GoogleCredential())).getRefreshToken();
-				
-					GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
-					System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
-					authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
-					System.out.println(list.size());
-					System.out.println("Ga Data --ArrayList fetched and stored");
-					
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-		AnalyticsMailer am= new AnalyticsMailer();
-		 try {
-			am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","", null);
-		} catch (UnsupportedEncodingException ex) {
-			// TODO Auto-generated catch block
-			ex.printStackTrace();
-		}
-	
-	}
-				
 
-	
-}
 
 	
 public static String getStackTrace(Throwable t)
