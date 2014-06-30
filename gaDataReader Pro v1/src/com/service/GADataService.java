@@ -33,7 +33,6 @@ public class GADataService {
 	int z=0;
 		try {
 			
-			
 			System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
 			ArrayList<GaData> list=new ArrayList<GaData>();
 			Authenticate  authenticate =new Authenticate();

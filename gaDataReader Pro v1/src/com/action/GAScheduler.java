@@ -54,7 +54,7 @@ import java.text.DateFormat;
  */
 @Controller
 public class GAScheduler {
-	
+
 	/** The Constant mapper. */
 	static final ObjectMapper mapper = new ObjectMapper();
 	
@@ -72,7 +72,6 @@ public class GAScheduler {
 	/** The date. */
 	static String date="";
 	
-
 	/**
 	 * Fetch batch data.
 	 *

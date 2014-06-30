@@ -34,8 +34,7 @@ public class UrlFetchServiceUtil {
 				connection.setRequestProperty("Content-Type",contentType);
 			}
 			if(header!=null )
-			{
-				
+			{	
 				for(String k:header.keySet())
 				{System.out.println("header key::"+k.toString());
 					connection.setRequestProperty(k.toString(),header.get(k).toString());

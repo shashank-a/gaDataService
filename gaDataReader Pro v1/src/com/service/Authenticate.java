@@ -433,11 +433,7 @@ public class Authenticate
 					if(startIndex != null){
 						apiQuery.setStartIndex(Integer.parseInt(startIndex));
 					}
-//					if(maxResults < 1000){
-//						apiQuery.setMaxResults(maxResults);
-//					}else{
-//						apiQuery.setMaxResults(999);
-//					}
+
 					System.out.println("Data send to analytics");
 					value = apiQuery.setMaxResults(maxResults).execute();
 					System.out.println("Data receive from analytics");

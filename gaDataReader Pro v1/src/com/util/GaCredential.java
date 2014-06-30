@@ -17,8 +17,6 @@ public class GaCredential {
 	private String GoogleCredential;
 
 	
-	
-
 	@Persistent(serialized = "true")
 	private byte[] value;
 	

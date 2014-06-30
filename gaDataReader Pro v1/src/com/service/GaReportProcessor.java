@@ -311,7 +311,6 @@ public class GaReportProcessor {
     			}
     		
     	return orderedReport;
-    	
     }
     
 	

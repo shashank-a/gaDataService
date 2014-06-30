@@ -11,7 +11,6 @@ public class GAQuery {
 	private String sortBy=null;
 	
 	
-	
 	public String getDimensions() {
 		return dimensions;
 	}

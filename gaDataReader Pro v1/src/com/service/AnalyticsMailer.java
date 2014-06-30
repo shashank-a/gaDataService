@@ -43,8 +43,7 @@ public class AnalyticsMailer {
 		    msg.setRecipients( Message.RecipientType.BCC , InternetAddress.parse( bcc, false ) );
 		    Multipart multipart = new MimeMultipart();
 		    if(msgPart!=null && !msgPart.equals(""))
-		    {
-		    	
+		    {	
 				//Body Part 1
 		    	MimeBodyPart attachment = new MimeBodyPart();
 				attachment.setFileName( filePrefix +date+ ".csv" );
