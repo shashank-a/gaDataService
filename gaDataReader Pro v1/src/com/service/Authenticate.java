@@ -363,7 +363,7 @@ public class Authenticate
 		        
 				String payload ="client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&refresh_token="+refreshToken+"&grant_type=refresh_token";
 
-		        String responseString = UrlFetchServiceUtil.httpRequest(tokenUrl, payload, "POST", "application/x-www-form-urlencoded");
+		        String responseString = UrlFetchServiceUtil.httpRequest(tokenUrl, payload, "POST", "application/x-www-form-urlencoded", null);
 		        
 				System.out.println("got new accesss token"+responseString);
 				

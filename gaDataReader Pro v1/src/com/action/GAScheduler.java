@@ -28,6 +28,7 @@ import com.util.DataStoreManager;
 import com.util.EmailAttachmentView;
 import com.util.EmailUtil;
 import com.util.GAUtil;
+import com.util.StringUtil;
 import com.util.ZipData;
 
 import java.util.ArrayList;
@@ -46,9 +47,18 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class GAScheduler.
+ * Schedules Data Fetch operation from Google Analytics API and also batch processing of Agent Data. 
+ */
 @Controller
 public class GAScheduler {
+	
+	/** The Constant mapper. */
 	static final ObjectMapper mapper = new ObjectMapper();
+	
+	/** The Constant mLogger. */
 	private static final Logger mLogger = Logger.getLogger(GAScheduler.class.getPackage().getName());
 	static {
 		mapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
@@ -58,9 +68,19 @@ public class GAScheduler {
 		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 		
 	}
+	
+	/** The date. */
 	static String date="";
 	
 
+	/**
+	 * Fetch batch data.
+	 *
+	 * @param req the req
+	 * @param res the res
+	 * FetchBatchData works on a backend with daily cron to store Analytics data in a batch of 9999 rows in one DataStore entry.
+	 *   
+	 */
 	@RequestMapping("/fetchBatchData.do")	
 	public void fetchBatchData(HttpServletRequest req,HttpServletResponse res)
 	{
@@ -115,7 +135,7 @@ public class GAScheduler {
 			e.printStackTrace();
 			AnalyticsMailer am= new AnalyticsMailer();
 			 try {
-				am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","", null);
+				am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception-fetchBatchData","","", null);
 			} catch (UnsupportedEncodingException ex) {
 				// TODO Auto-generated catch block
 				ex.printStackTrace();
@@ -128,54 +148,20 @@ public class GAScheduler {
 	}
 	
 
-@RequestMapping("/fullCXEmailer.do")
-public void fullCXEmailer(HttpServletRequest req,HttpServletResponse res) throws Exception, IOException
-		{
-	
-		System.out.println("Cron JOb Triggered @" + System.currentTimeMillis());
-		System.out.println("target->> /email tester.do ");
 
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		sdf.setTimeZone(TimeZone.getTimeZone("PST8PDT"));
 
-		if (req.getParameter("dateFrom") != null) {
-			date = req.getParameter("dateFrom");
-			System.out.println("Custom Date:" + date);
-		} else {
-			cal.roll(Calendar.DATE, false);
-			System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
-					+ sdf.getTimeZone());
-			date = (sdf.format(cal.getTime())).toString();
-		}
-
-		String dimensions = "ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
-		ArrayList<ArrayList<?>> sbRowData = GaDatastoreService.fetchGAData(
-				date, dimensions,
-				GAUtil.getkeyElementFromDimension(dimensions), "SBLive");
-		GaReportProcessor gaReportProcessor= new GaReportProcessor();
-	 		
-		ArrayList<ArrayList<?>> compiledData = gaReportProcessor.filterDataByDimension(sbRowData,"Associate Thumbs Down Data",1);
-		compiledData.addAll(gaReportProcessor.filterDataByDimension(sbRowData,"Associate Thumbs Up Data",1));
-		System.out.println(compiledData.size());
-	 	
-		
-		String csvData = null;
-		String msgText = "[TEST] Please Find Attached Google Analytics Full CX Feedback Report for "+date;  
-		csvData=CsvUtil.formatCsv(compiledData,Charset.defaultCharset()).toString();
-		
-		System.out.println(msgText);
-		AnalyticsMailer am= new AnalyticsMailer();
-			 try {
-				am.initMail(csvData,msgText,date,"shashank.ashokkumar@a-cti.com","Full CX Feedback Report[Google Analytics]","","", null);
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			 System.out.println("Service complete");
-			 
-		}
-
+/**
+ * Process agent report.
+ *
+ * @param req the req
+ * @param res the res
+ * @throws Exception the exception
+ * @throws IOException Signals that an I/O exception has occurred.
+ * 
+ * processAgentReport works on a backend with daily cron to process agent action report for Performance Management Team.
+ * It stores a json and CSV for the same.
+ * 
+ */
 @RequestMapping("/processAgentReport.do")	
 public void processAgentReport(HttpServletRequest req,HttpServletResponse res) throws Exception, IOException
 {
@@ -197,8 +183,6 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 		date = (sdf.format(cal.getTime())).toString();
 		dateFrom=date;
 	}
-	
-	
 	
 	System.out.println("dataFrom:::;   "+dateFrom);
 	String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
@@ -223,7 +207,6 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 			processedData=CsvUtil.formatCsvfromArray(arr,',',Charset.defaultCharset()).toString();
 			DataStoreManager.set("AgentActionCount_CSV"+dateFrom.replaceAll("-", ""),dateFrom.replaceAll("-", ""),ZipData.compressBytes(processedData.toString()));
 			System.out.println("########Storing CSV Data#####KEy::"+"AgentActionCount_CSV_"+dateFrom.replaceAll("-", ""));
-			
 			 
 		}
 		
@@ -232,7 +215,7 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 		e.printStackTrace();
 		AnalyticsMailer am= new AnalyticsMailer();
 		 try {
-			am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","", null);
+			am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception-processAgentReport","","", null);
 			
 		} catch (UnsupportedEncodingException ex) {
 			// TODO Auto-generated catch block
@@ -243,6 +226,16 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 	
 	
 }
+
+/**
+ * Agent action email service.
+ *
+ * @param req the req
+ * @param res the res
+ * @throws Exception the exception
+ * @throws IOException Signals that an I/O exception has occurred.
+ *  sends email for agent action report.
+ */
 @RequestMapping("/agentActionEmailService.do")
 public void agentActionEmailService(HttpServletRequest req,HttpServletResponse res) throws Exception, IOException
 		{
@@ -253,6 +246,8 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		sdf.setTimeZone(TimeZone.getTimeZone("PST8PDT"));
+		String testEmail=req.getParameter("email");
+		//testEmail="test";
 
 		if (req.getParameter("dateFrom") != null) {
 			date = req.getParameter("dateFrom");
@@ -285,10 +280,14 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 				 if(csvData!=null && !csvData.equals(""))
 					 {
 					String cc="naresh.talluri@a-cti.com,performancemanagement@a-cti.com";
-					String bcc="shashank.ashokkumar@a-cti.com,ramanathan.arunachalam@a-cti.com";
+					String bcc="shashank.ashokkumar@a-cti.com,ramanathan.arunachalam@a-cti.com,srinivasan.suriyanarayanan@a-cti.com,abilash.amarasekaran@a-cti.com";
 					
-					 am.initMail(csvData,msgText,date,"gayathri.venkatasayee@a-cti.com","Agent Action Report",cc,bcc, "AgentActionReport");
-					//am.initMail(csvData,msgText,date,"shashank.ashokkumar@a-cti.com","Agent Action Report","","");
+					
+					if(testEmail!=null && testEmail.equals("test"))
+						am.initMail(csvData,msgText,date,"shashank.ashokkumar@a-cti.com","Agent Action Report","","","AgentActionReport");
+					else
+						am.initMail(csvData,msgText,date,"gayathri.venkatasayee@a-cti.com","Agent Action Report",cc,bcc, "AgentActionReport");
+					//
 					 }
 				 else
 			    		System.out.println("CSV	 Data Not present");
@@ -297,7 +296,7 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 				e.printStackTrace();
 				AnalyticsMailer am= new AnalyticsMailer();
 				 try {
-					am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","", null);
+					am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception-agentActionEmailService","","", null);
 					
 				} catch (UnsupportedEncodingException ex) {
 					// TODO Auto-generated catch block
@@ -309,6 +308,15 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 			 
 		}
 
+/**
+ * Fetch v2 outbound.
+ *
+ * @param req the req
+ * @param res the res
+ * 
+ * fetch v2 outbound data based on a dateFrom,dateTo  from Google Analytics , stores as an entry in DataStore and send email to marked addresses. 
+ * Note: It works on a backend 'gabackend';
+ */
 @RequestMapping("/fetchV2Outbound.do")	
 public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 {System.out.println("fetchV2Outbound");
@@ -318,6 +326,7 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 		String dateFrom=req.getParameter("dateFrom");
 		String dateTo=req.getParameter("dateTo");
 		String dateRange=req.getParameter("range");
+		String email=req.getParameter("email");
 		String date=null;
 		if(dateFrom==null && dateTo==null)
 		{
@@ -373,8 +382,15 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 		    		if(dateRange!=null && dateRange.equals("monthly")){
 		    					msgText = " Please Find Attached V2 Outbound Report for date  "+dateFrom+"->"+dateTo;
 		    			}
+		    		if(email!=null && !email.equals("") && StringUtil.isEmail(email))
+		    		{
+		    			am.initMail(processedData,msgText,date,email,"V2 Outbound Report","shashank.ashokkumar@a-cti.com","", "V2Outbound_");
+		    			res.getWriter().println("V2 Outbound Report Generated. Please check your inbox :-"+email);
+		    			//Response.AddHeader("Access-Control-Allow-Origin", "*");
+		    			res.addHeader("Access-Control-Allow-Origin", "*");
+		    		}else
+		    		am.initMail(processedData,msgText,date,"shashank.ashokkumar@a-cti.com","V2 Outbound Report","naresh.talluri@a-cti.com,dev.clientwebaccess@a-cti.com","", "V2Outbound_");
 		    		
-		    		am.initMail(processedData,msgText,date,"shashank.ashokkumar@a-cti.com","V2 Outbound Report","","", "V2Outbound_");
 		    		
 					
 	} catch (IOException e) {
@@ -404,6 +420,13 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 
 
 
+/**
+ * Parses the batched data into one String and stores as jsonFormat for the reporting tool gadataservice and further processing.
+ * 
+ *
+ * @param req the req
+ * @param res the res
+ */
 @RequestMapping("/parseGAJSON.do")	
 public void parseGAJSON(HttpServletRequest req,HttpServletResponse res)
 {	
@@ -463,6 +486,12 @@ public void parseGAJSON(HttpServletRequest req,HttpServletResponse res)
 
 
 	
+/**
+ * Gets the stack trace.
+ *
+ * @param t the t
+ * @return the stack trace
+ */
 public static String getStackTrace(Throwable t)
 {
     StringWriter sw = new StringWriter();
@@ -474,6 +503,11 @@ public static String getStackTrace(Throwable t)
 }
 
 
+/**
+ * Prints the stack trace.
+ *
+ * @param t the t
+ */
 public static void printStackTrace(Throwable t) {
 mLogger.error(getStackTrace(t));
 }

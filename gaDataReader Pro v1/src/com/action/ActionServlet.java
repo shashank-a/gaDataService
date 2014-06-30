@@ -390,7 +390,7 @@ public class ActionServlet {
 		String payload ="code="+code+"&client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&redirect_uri="+REDIRECT_URL+"&grant_type="+grant_type;
 		System.out.println(payload);
 		try{
-			String responseString = UrlFetchServiceUtil.httpRequest(address, payload, "POST", "application/x-www-form-urlencoded");
+			String responseString = UrlFetchServiceUtil.httpRequest(address, payload, "POST", "application/x-www-form-urlencoded", null);
 			System.out.println("The response String "+responseString);
 			TypeReference<HashMap<String,String>> typeRef = new TypeReference<HashMap<String,String>>() {};
 			HashMap<String,String> resultMap = mapper.readValue(responseString.toString(), typeRef);
@@ -1091,8 +1091,8 @@ public class ActionServlet {
     	
    }
     
-	@RequestMapping("/gaGCSService.do")
-	public void gaGCSService(HttpServletRequest req,HttpServletResponse res)
+	@RequestMapping("/getGAService.do")
+	public void getGAService(HttpServletRequest req,HttpServletResponse res)
 	{String redirectString="";
 	String accessToken;
     	//String code=req.getParameter("code");
@@ -1106,12 +1106,12 @@ public class ActionServlet {
 //			System.out.println(clientSecrets);
     		
     		
-    		GaDatastoreService datastoreService= new GaDatastoreService();
+    			GaDatastoreService datastoreService= new GaDatastoreService();
     		//System.out.println("Calling refresh:::"+updateAccessTokenWithResfreshToken("1/y4LrLLimtZcMGFSHgJaM_9PP-WuudOQraUHf-MTTWNE"));
-    		String jsonData=new GaDatastoreService().getTempData("shashank.ashokkumar@a-cti.com","refresh_token");
-    		HashMap hm=datastoreService.convertJsonToMap(jsonData);
+    			String jsonData=new GaDatastoreService().getTempData("shashank.ashokkumar@a-cti.com","refresh_token");
+    			HashMap hm=datastoreService.convertJsonToMap(jsonData);
     		if(hm.get("refresh_token")!=null)
-    		{System.out.println("refresh Toekn found");
+    		{	System.out.println("refresh Toekn found");
     		
     			accessToken=new Authenticate().updateAccessTokenWithResfreshToken(hm.get("refresh_token").toString());
     			System.out.println("accessToken");
@@ -1119,11 +1119,11 @@ public class ActionServlet {
     			
     		}else
     		{
-    	String redirectUri="http://www.gadataservice.appspot.com/oauth2callback.do";
-   		  redirectString="https://accounts.google.com/o/oauth2/auth?client_id="+"171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com"+"&redirect_uri="+redirectUri+"&response_type=code&scope=https://www.googleapis.com/auth/analytics.readonly&access_type=offline&approval_prompt=force";
-   		 System.out.println("redirect URI::::"+redirectString);
-   		res.sendRedirect(redirectString);
-   		}
+	    		String redirectUri="http://www.gadataservice.appspot.com/oauth2callback.do";
+	   		  	redirectString="https://accounts.google.com/o/oauth2/auth?client_id="+"171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com"+"&redirect_uri="+redirectUri+"&response_type=code&scope=https://www.googleapis.com/auth/analytics.readonly&access_type=offline&approval_prompt=force";
+	   		  	System.out.println("redirect URI::::"+redirectString);
+	   		 	res.sendRedirect(redirectString);
+    		}
 
    				} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -1132,41 +1132,6 @@ public class ActionServlet {
     	
 		 
 	}
-	
-		public String UrlFetchServiceUtil(String tokenUrl, String payload, String reqType,String contentType)
-	{
-		BufferedReader reader = null;
-		HttpURLConnection connection = null;
-		String lResponseString = "";
-		String lRespObj = "";
-		String respObj = null;
-		try {
-			URL url = new URL( tokenUrl );
-			connection = (HttpURLConnection) url.openConnection();
-			connection.setConnectTimeout( 60000 );
-			connection.setRequestMethod( "POST" );
-			connection.setDoOutput( true );
-			connection.setDoInput( true );
-			connection.setRequestProperty( "content-type" , contentType );
-			OutputStreamWriter writer = new OutputStreamWriter( connection.getOutputStream() );
 			
-			System.out.println("tokenString::"+tokenUrl);
-			writer.write( payload);
-			writer.flush();
-			reader = new BufferedReader( new InputStreamReader( connection.getInputStream() ) );
-			while ( ( lResponseString = reader.readLine() ) != null )
-				{
-					respObj = lResponseString;
-				}
-			
-			System.out.println(respObj);
-		} catch ( IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return respObj;
-	}
-	
     
 }

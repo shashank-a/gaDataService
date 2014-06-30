@@ -1317,4 +1317,15 @@ public class StringUtil
 					}
 				return paramMap;
 			}
+		public static String decodeBase64(String val)
+		{
+			
+			org.apache.commons.codec.binary.Base64 decoder = new org.apache.commons.codec.binary.Base64();
+			 byte[] emailData=decoder.decode(val);
+			 val = new String(emailData);
+			 System.out.println(val);
+			 
+			 return val;
+			
+		}
 	}

@@ -7,13 +7,15 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+
 
 
 
 
 public class UrlFetchServiceUtil {
 
-	public static String httpRequest(String urlString, String params, String methodName, String contentType){
+	public static String httpRequest(String urlString, String params, String methodName, String contentType, HashMap<String,String> header){
 		StringBuffer responseJson = new StringBuffer();
 
 		try{
@@ -30,6 +32,14 @@ public class UrlFetchServiceUtil {
 			connection.setConnectTimeout(60000);
 			if(contentType != null && !contentType.isEmpty()){
 				connection.setRequestProperty("Content-Type",contentType);
+			}
+			if(header!=null )
+			{
+				
+				for(String k:header.keySet())
+				{System.out.println("header key::"+k.toString());
+					connection.setRequestProperty(k.toString(),header.get(k).toString());
+				}
 			}
 			if(params != null && !params.isEmpty()){
 				OutputStreamWriter writers = new OutputStreamWriter(connection.getOutputStream());

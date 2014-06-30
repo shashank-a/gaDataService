@@ -21,157 +21,14 @@ import org.codehaus.jackson.map.JsonMappingException;
 
 import com.account.AccountDetails;
 import com.action.ActionServlet;
+import com.google.api.client.util.Base64;
 import com.util.DataStoreManager;
 import com.util.StringUtil;
 
 public class GaReportProcessor {
 	private static final Logger mLogger = Logger.getLogger(GaReportProcessor.class.getPackage().getName());
 	
-	/*
-	public ArrayList<AccountDetails> getAccountDataFromGaData(ArrayList<ArrayList<?>> dataTable)
-	{
-		try {
-		ArrayList<ArrayList<String>> groupedData=null;
-		
-		HashSet hm=getUniqueDimensionFromGAData(dataTable,0);
-		Iterator it= hm.iterator();
-		AccountDetails acctDetails;
-		ArrayList<AccountDetails> accountData=new ArrayList<AccountDetails>();
-		ArrayList<List<?>> checkList=new ArrayList<List<?>>();
-		//int loopvalue=0;
-		
-		System.out.println("UNique accounts::::"+hm.size());
-		System.out.println("DataTable Size:::"+dataTable.size());
-		
-		for(String tempAcc:hm)
-		{	
-			Integer callTime=new Integer(0);
-			int send=0;
-			int callCon=0;
-			int accLoad=0;
-			int mAnnotate=0;
-			int cAnnotate=0;
-			int outboudCall=0;
-			int apRefetch=0;
-			int inBound=0;
-			
-			
-			
-			acctDetails=new AccountDetails();
-			for(ArrayList<?> rowdata: dataTable)
-			{//loopvalue++;
-				if(tempAcc.equals(rowdata.get(0)))
-						{
-					
-							if(rowdata.get(1).equals("Send"))
-							{
-								send++;
-							}
-							else if(rowdata.get(1).equals("CallConclusion"))
-							{
-								callCon++;
-							}
-							else if(rowdata.get(1).equals("Account Load"))
-							{
-								accLoad++;
-							}
-							else if(rowdata.get(1).equals("InBoundCall"))
-							{
-								inBound++;
-							}
-							else if(rowdata.get(1).equals("Message Annotation"))
-							{
-								mAnnotate++;
-							}
-							else if(rowdata.get(1).equals("CallerHistory Annotation"))
-							{
-								cAnnotate++;
-							}
-							else if(rowdata.get(1).equals("Outbound Call"))
-							{
-								outboudCall++;
-							}
-							
-						}
-			}
-			acctDetails.setAcctNum(tempAcc);
-			acctDetails.setCallTotal(callTime.toString());
-			acctDetails.setSendCount(send);
-			acctDetails.setCallConclusion(callCon);
-			acctDetails.setAccLoad(accLoad);
-			acctDetails.setAccLoad(accLoad);
-			accountData.add(acctDetails);
-			
-		}
-		
-		
-		System.out.println("Returning...");
-		return accountData;
-		} catch (Exception e) {
-			printStackTrace(e);
-			return null;
-		}
-	}
-	*/
-	/*public ArrayList<AccountDetails> getEventDescriptionForCategory(ArrayList<ArrayList<?>> dataTable,String category)
-	{
-		try 
-		{
-		
-		ArrayList<ArrayList<?>> groupedData=null;
-		//
-		//Iterator it= hm.entrySet().iterator();
-		AccountDetails acctDetails;
-		ArrayList<AccountDetails> accountData=new ArrayList<AccountDetails>();
-		
-		//int loopvalue=0;
-		System.out.println("category::"+category);
-		groupedData=filterDataByDimension(dataTable,category,0);
-		System.out.println("Filtered Data size"+groupedData.size());
-		LinkedHashMap <String,String> hm=getUniqueDimensionFromGAData(groupedData,2);
-		
-		System.out.println("UNique agents::::"+hm.size());
-		System.out.println("DataTable Size:::"+groupedData.size());
-		for(String tempAgent:hm.keySet())
-		{	
-			Integer callTime=new Integer(0);
-			int send=0;
-			int callCon=0;
-			acctDetails=new AccountDetails();
-			for(ArrayList<?> rowdata: groupedData)
-			{//loopvalue++;
-			if(tempAgent.equals(rowdata.get(2)))
-						{System.out.println("rowdata.get(1):::"+rowdata.get(1));
-							if(("Send").equals(rowdata.get(1).toString().trim()))
-							{
-								System.out.println("Send ++");
-								send++;
-							}
-							else if(rowdata.get(1).equals("CallConclusion"))
-							{System.out.println("CallConclusion ++");
-								callCon++;
-							}
-							callTime=callTime+(new Integer(rowdata.get(3).toString()));
-						}
-			}
-			acctDetails.setAcctNum(category);
-			acctDetails.setEventLabel(tempAgent);
-			acctDetails.setCallTotal(callTime.toString());
-			acctDetails.setSendCount(send);
-			acctDetails.setCallConclusion(callCon);
-			accountData.add(acctDetails);
-			
-		}
-		printAccountData(accountData);
-		
-		System.out.println("Returning...");
-		return accountData;
-		} catch (Exception e) {
-			printStackTrace(e);
-			return null;
-		}
-	}
-*/
+	
 	
 	public HashSet getUniqueDimensionFromGAData (ArrayList<ArrayList<?>> rowData,int index)
 	{
@@ -190,17 +47,29 @@ public class GaReportProcessor {
 	
 	public ArrayList<ArrayList<?>> filterDataByDimension(ArrayList<ArrayList<?>> rowData,String value,int index)
 	{
+		System.out.println("inside filterDataByDimension:: "+value);
 		ArrayList<ArrayList<?>> filteredList=new ArrayList<ArrayList<?>>();
 		//System.out.println("index::"+index+"value::"+value);
-		 Pattern p = Pattern.compile(value);
-		 
-		for(ArrayList<?> entry: rowData)
-		{
-			Matcher m = p.matcher(entry.get(index).toString().trim());
-			if(m.matches())
-			{//System.out.println("entry::"+entry.get(index).toString());
-				filteredList.add(entry);
+		 try {
+			 Pattern p=null;
+			 p= Pattern.compile(value);	 
+			 
+			for(ArrayList<?> entry: rowData)
+			{
+				Matcher m = p.matcher(entry.get(index).toString().trim());
+				if(m.matches())
+				{//System.out.println("entry::"+entry.get(index).toString());
+					filteredList.add(entry);
+				}
 			}
+		} catch(java.util.regex.PatternSyntaxException reg1)
+		{
+			System.out.println("regError:"+value+"index:"+index);
+			reg1.printStackTrace();
+		}
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}	
 		
 		return filteredList;
@@ -231,12 +100,16 @@ public class GaReportProcessor {
 		LinkedHashMap<String, HashMap> processedJSON=null;
 		HashSet uniqueAgent=getUniqueDimensionFromGAData(rowData,2);
 		HashSet uniqueAction=getUniqueDimensionFromGAData(rowData,1);
-		
+		System.out.println("uniqueAgent::"+uniqueAgent);
 		for(Object agent:uniqueAgent)
 		{
-			LinkedHashMap rowObj=new LinkedHashMap(); 
+			LinkedHashMap rowObj=new LinkedHashMap();
+			if(!StringUtil.isEmail(agent.toString()))
+					{
+					agent =StringUtil.decodeBase64(agent.toString());
+					}
 			rowObj.put("Agent Email", agent.toString());
-			
+			System.out.println("email:::"+agent.toString());
 			for(Object action:uniqueAction)
 			{
 				rowObj.put(action.toString(),0);
@@ -312,8 +185,9 @@ public class GaReportProcessor {
 			uniqueActionSet.add("Annotation/close(IB)");
 			uniqueActionSet.add("Annotation/close(NOID)");
 			uniqueActionSet.add("Annotation/close(CI)");
+			//added for DeadAIR call
+			uniqueActionSet.add("CallConclusion(DAC)");
 			
-
 		  //  
 		  ArrayList<String> uniqueAction=new ArrayList(Arrays.asList(uniqueActionSet.toArray()));
 		//ction.sort();
@@ -332,7 +206,6 @@ public class GaReportProcessor {
 			
 			for(ArrayList<?> row:agentDetails)
 			{
-				if(rowObj.get(row.get(1))!=null && !rowObj.get(row.get(1)).toString().equals(""))
 				{
 					
 					//rowObj[row[1]]=rowObj[row[1]]+1;
@@ -340,7 +213,12 @@ public class GaReportProcessor {
 					if(row.get(3).toString().contains("us-cs-telephony"))
 						{
 						if(row.get(1).equals("CallConclusion"))
-							rowObj.put("CallConclusion (IB)",Integer.parseInt(rowObj.get("CallConclusion (IB)").toString())+1);
+							{
+							 if(row.get(6).equals("Dead Air Call") ) 
+								 rowObj.put("CallConclusion(DAC)",Integer.parseInt(rowObj.get("CallConclusion(DAC)").toString())+1);
+							 else
+								 rowObj.put("CallConclusion (IB)",Integer.parseInt(rowObj.get("CallConclusion (IB)").toString())+1);
+							}
 						else if(row.get(1).equals("Done"))
 							rowObj.put("Send (IB)",Integer.parseInt(rowObj.get("Send (IB)").toString())+1);
 						else if(row.get(1).equals("Account Load"))
@@ -354,15 +232,15 @@ public class GaReportProcessor {
 						if(row.get(1).equals("CallConclusion"))
 							rowObj.put("CallConclusion (NOID)",Integer.parseInt(rowObj.get("CallConclusion (NOID)").toString())+1);
 						else if(row.get(1).equals("Done"))
-						rowObj.put("Send (NOID)",Integer.parseInt(rowObj.get("Send (NOID)").toString())+1);
+							rowObj.put("Send (NOID)",Integer.parseInt(rowObj.get("Send (NOID)").toString())+1);
 						else if(row.get(1).equals("Account Load"))
 								{
 							rowObj.put("Account Load (NOID)",Integer.parseInt(rowObj.get("Account Load (NOID)").toString())+1);
 								}
 						else if(row.get(1).equals("Annotation/close"))
 							{rowObj.put("Annotation/close(NOID)",Integer.parseInt(rowObj.get("Annotation/close(NOID)").toString())+1);
-							
 							}
+
 					}
 					
 				else
@@ -379,10 +257,10 @@ public class GaReportProcessor {
 						}
 					else if(row.get(1).equals("Annotation/close"))
 						{rowObj.put("Annotation/close(CI)",Integer.parseInt(rowObj.get("Annotation/close(CI)").toString())+1);
-						
 						}
-					
+				
 				}
+					
 
 					
 				}

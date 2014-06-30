@@ -13,11 +13,10 @@ function processGARequest(parms,url) {
 			console.log("Successful Request");
 			
 			var responseText = request.responseText;
-			console.log("responseData::"+responseText);
-			
-			
-			
-			
+			console.log("response:"+responseText);
+			//console.log("responseData::"+responseText);
+			//fetchV2Outbound.do?dateFrom=2014-05-01&dateTo=2014-05-29&range=monthly
+				//	http://gabackend.gadataservice.appspot.com/
 			//test work heree
 			}
 		}
