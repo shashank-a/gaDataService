@@ -58,40 +58,13 @@
 			 
  }
  
+ function fetchOutboundData()
+ { 
+	 processGARequest($j('#dataFilter').serialize(),'http://gabackend.gadataservice.appspot.com/fetchV2Outbound.do?');
+ }
  
- $j(document).ready(function() {
-	    $j('#dataFilter').bootstrapValidator({
-	        fields: {
-	            dateFrom: {
-	                validators: {
-	                    notEmpty: {
-	                        message: 'The first name is required and cannot be empty'
-	                    }
-	                }
-	            },
-	            dateTo: {
-	                validators: {
-	                    notEmpty: {
-	                        message: 'The last name is required and cannot be empty'
-	                    }
-	                }
-	            },
-	            email: {
-	                validators: {
-	                    notEmpty: {
-	                        message: 'The email address is required'
-	                    },
-	                    emailAddress: {
-	                        message: 'The input is not a valid email address'
-	                    }
-	                }
-	            },
-	            
-	        }
-
-	    });
-	});
  
+  
  
  
  

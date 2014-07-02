@@ -57,6 +57,7 @@ public class GAScheduler {
 
 	/** The Constant mapper. */
 	static final ObjectMapper mapper = new ObjectMapper();
+	ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
 	
 	/** The Constant mLogger. */
 	private static final Logger mLogger = Logger.getLogger(GAScheduler.class.getPackage().getName());
@@ -82,8 +83,7 @@ public class GAScheduler {
 	 */
 	@RequestMapping("/fetchBatchData.do")	
 	public void fetchBatchData(HttpServletRequest req,HttpServletResponse res)
-	{
-		ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
+	{	
 		try {
 			String dateFrom=req.getParameter("dateFrom");
 			String date=null;
@@ -91,7 +91,8 @@ public class GAScheduler {
 			{
 				Calendar cal = Calendar.getInstance();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			cal.roll(Calendar.DATE, false);
+			//cal.roll(Calendar.DATE, false);
+			cal.add(Calendar.DATE, -1);
 			System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
 					+ sdf.getTimeZone());
 			date = (sdf.format(cal.getTime())).toString();
@@ -109,8 +110,8 @@ public class GAScheduler {
 			int z=0;
 			GaDatastoreService datastoreService= new GaDatastoreService();
 			Authenticate  authenticate =new Authenticate();
-			
-			String jsonData=new GaDatastoreService().getTempData("shashank.ashokkumar@a-cti.com","refresh_token");
+			System.out.println("access GA API using::"+resourceBundle.getString("email").toString());
+			String jsonData=new GaDatastoreService().getTempData(resourceBundle.getString("email").toString(),"refresh_token");
     		HashMap hm=datastoreService.convertJsonToMap(jsonData);
     		if(hm.get("refresh_token")!=null)
     		{System.out.println("refresh Toekn found");
@@ -134,7 +135,7 @@ public class GAScheduler {
 			e.printStackTrace();
 			AnalyticsMailer am= new AnalyticsMailer();
 			 try {
-				am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception-fetchBatchData","","", null);
+				am.initMail("",e.toString(),date,resourceBundle.getString("errorMail").toString(),"GA Exception-fetchBatchData","","", null);
 			} catch (UnsupportedEncodingException ex) {
 				// TODO Auto-generated catch block
 				ex.printStackTrace();
@@ -176,7 +177,8 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 		date = req.getParameter("dateFrom");
 		System.out.println("Custom Date:" + date);
 	} else {
-		cal.roll(Calendar.DATE, false);
+		//cal.roll(Calendar.DATE, false);
+		cal.add(Calendar.DATE, -1);
 		System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
 				+ sdf.getTimeZone());
 		date = (sdf.format(cal.getTime())).toString();
@@ -214,7 +216,7 @@ public void processAgentReport(HttpServletRequest req,HttpServletResponse res) t
 		e.printStackTrace();
 		AnalyticsMailer am= new AnalyticsMailer();
 		 try {
-			am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception-processAgentReport","","", null);
+			am.initMail("",e.toString(),date,resourceBundle.getString("errorMail").toString(),"GA Exception-processAgentReport","","", null);
 			
 		} catch (UnsupportedEncodingException ex) {
 			// TODO Auto-generated catch block
@@ -252,7 +254,8 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 			date = req.getParameter("dateFrom");
 			System.out.println("Custom Date:" + date);
 		} else {
-			cal.roll(Calendar.DATE, false);
+			//cal.roll(Calendar.DATE, false);
+			cal.add(Calendar.DATE, -1);
 			System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
 					+ sdf.getTimeZone());
 			date = (sdf.format(cal.getTime())).toString();
@@ -283,7 +286,7 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 					
 					
 					if(testEmail!=null && testEmail.equals("test"))
-						am.initMail(csvData,msgText,date,"shashank.ashokkumar@a-cti.com","Agent Action Report","","","AgentActionReport");
+						am.initMail(csvData,msgText,date,resourceBundle.getString("errorMail").toString(),"Agent Action Report","","","AgentActionReport");
 					else
 						am.initMail(csvData,msgText,date,"gayathri.venkatasayee@a-cti.com","Agent Action Report",cc,bcc, "AgentActionReport");
 					//
@@ -295,7 +298,7 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 				e.printStackTrace();
 				AnalyticsMailer am= new AnalyticsMailer();
 				 try {
-					am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception-agentActionEmailService","","", null);
+					am.initMail("",e.toString(),date,resourceBundle.getString("errorMail").toString(),"GA Exception-agentActionEmailService","","", null);
 					
 				} catch (UnsupportedEncodingException ex) {
 					// TODO Auto-generated catch block
@@ -319,7 +322,7 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 @RequestMapping("/fetchV2Outbound.do")	
 public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 {System.out.println("fetchV2Outbound");
-	ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
+	
 	AnalyticsMailer am= new AnalyticsMailer();
 	try {
 		String dateFrom=req.getParameter("dateFrom");
@@ -331,7 +334,8 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 		{
 			Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		cal.roll(Calendar.DATE, false);
+		//cal.roll(Calendar.DATE, false);
+		cal.add(Calendar.DATE, -1);
 		System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
 				+ sdf.getTimeZone());
 		date = (sdf.format(cal.getTime())).toString();
@@ -355,7 +359,8 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 				ArrayList<ArrayList<?>> arrayList=null;
 				String accessToken="";
 		    	String processedData=null;
-		    	String jsonData=new GaDatastoreService().getTempData("shashank.ashokkumar@a-cti.com","refresh_token");
+		    	System.out.println("access GA API using::"+resourceBundle.getString("email").toString());
+		    	String jsonData=new GaDatastoreService().getTempData(resourceBundle.getString("email").toString(),"refresh_token");
 	    		GaDatastoreService datastoreService=null;
 				HashMap hm=datastoreService.convertJsonToMap(jsonData);
 	    		if(hm.get("refresh_token")!=null)
@@ -363,12 +368,7 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 	    			 accessToken = authenticate.updateAccessTokenWithResfreshToken(hm.get("refresh_token").toString());
 	    			System.out.println("accessToken");
 	    			//temp=(GoogleTokenResponse)authenticate.getNewToken(hm.get("refresh_token").toString());
-	    		}else
-	    		{
-	    			System.out.println("no Refresh token");
-	    		}
-				
-					
+	    		
 					authenticate.gaQurey(null,accessToken, dateFrom, dateTo,true,list,dimensions, resourceBundle.getString("V2App"),"ga:eventAction==Call Transfer,ga:eventAction==Dialing", "monthly" );
 					System.out.println(list.size());
 					System.out.println("Ga Data --ArrayList fetched and stored");
@@ -382,22 +382,27 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 		    					msgText = " Please Find Attached V2 Outbound Report for date  "+dateFrom+"->"+dateTo;
 		    			}
 		    		if(email!=null && !email.equals("") && StringUtil.isEmail(email))
-		    		{
-		    			am.initMail(processedData,msgText,date,email,"V2 Outbound Report","shashank.ashokkumar@a-cti.com","", "V2Outbound_");
+		    		{  System.out.println("sending email to ::"+email);
+		    			am.initMail(processedData,msgText,date,email,"V2 Outbound Report",resourceBundle.getString("errorMail").toString(),"", "V2Outbound_");
 		    			res.getWriter().println("V2 Outbound Report Generated. Please check your inbox :-"+email);
 		    			//Response.AddHeader("Access-Control-Allow-Origin", "*");
 		    			res.addHeader("Access-Control-Allow-Origin", "*");
 		    		}else
-		    		am.initMail(processedData,msgText,date,"shashank.ashokkumar@a-cti.com","V2 Outbound Report","naresh.talluri@a-cti.com,dev.clientwebaccess@a-cti.com","", "V2Outbound_");
-		    		
-		    		
+		    		{System.out.println("Sending email..");
+		    			am.initMail(processedData,msgText,date,resourceBundle.getString("errorMail").toString(),"V2 Outbound Report","naresh.talluri@a-cti.com,dev.clientwebaccess@a-cti.com","", "V2Outbound_");
+		    		}
+	    		}else
+	    		{
+	    			System.out.println("no Refresh token");
+	    			
+	    		}	
 					
 	} catch (IOException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 		
 		 try {
-			am.initMail("",e.toString(),date,"shashank.ashokkumar@a-cti.com","GA Exception","","", null);
+			am.initMail("",e.toString(),date,resourceBundle.getString("errorMail").toString(),"GA Exception","","", null);
 			
 		} catch (UnsupportedEncodingException ex) {
 			// TODO Auto-generated catch block
@@ -439,7 +444,8 @@ public void parseGAJSON(HttpServletRequest req,HttpServletResponse res)
 		date = req.getParameter("dateFrom");
 		System.out.println("Custom Date:" + date);
 	} else {
-		cal.roll(Calendar.DATE, false);
+		//cal.roll(Calendar.DATE, false);
+		cal.add(Calendar.DATE, -1);
 		System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
 				+ sdf.getTimeZone());
 		date = (sdf.format(cal.getTime())).toString();

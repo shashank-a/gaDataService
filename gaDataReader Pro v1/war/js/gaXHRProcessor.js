@@ -23,7 +23,6 @@ function processGARequest(parms,url) {
 			request.open('POST', url, true);
 			request.setRequestHeader("Content-type",
 					"application/x-www-form-urlencoded;charset=UTF-8");
-			request.setRequestHeader("Content-length", parms.length);
-			request.setRequestHeader("Connection", "close");
+			request.setRequestHeader("Access-Control-Allow-Origin", "*");
 			request.send(parms);
 		}

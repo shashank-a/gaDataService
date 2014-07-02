@@ -26,7 +26,7 @@ function processGARequest(parms,url) {
 			request.open('POST', url, true);
 			request.setRequestHeader("Content-type",
 					"application/x-www-form-urlencoded;charset=UTF-8");
-			
+			request.setRequestHeader(""
 			$j('#loadingmessage').show(); 
 		document.getElementById('tablechart').innerHTML="";
 			request.send(parms);
