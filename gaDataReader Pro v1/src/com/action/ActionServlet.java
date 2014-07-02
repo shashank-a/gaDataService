@@ -464,7 +464,6 @@ public class ActionServlet {
         return sw.toString();
     }
     
-    
     /**
      * Gets the batch data.
      *
