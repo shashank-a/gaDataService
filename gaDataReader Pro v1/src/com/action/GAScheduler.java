@@ -124,7 +124,7 @@ public class GAScheduler {
     		}
 					//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
 					ArrayList<GaData> list=new ArrayList<GaData>();
-						
+						 
 						authenticate.gaQurey(null,accessToken, date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
 						System.out.println(list.size());
 						System.out.println("Ga Data --ArrayList fetched and stored");

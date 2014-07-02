@@ -450,7 +450,7 @@ public class ActionServlet {
     
     /**
      * Gets the stack trace.
-     *
+     * 
      * @param t the t
      * @return the stack trace
      */
