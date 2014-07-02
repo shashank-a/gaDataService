@@ -47,74 +47,8 @@ public class Authenticate
 	final static JacksonFactory JSON_FACTORY = new  JacksonFactory();
     final static HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 	
-	
-	
-	
-		public GoogleTokenResponse getData(String authorizationCode) throws IOException
-			{
-		 System.out.println("Auth code::"+authorizationCode);
-				// Use the authorization code to get an access token and a refresh token.
-		 
-		 if(authorizationCode==null)
-		 {
-			 return null;
-		 }
-		 GoogleTokenResponse res=null;
-		 
-		
-		try {
-		  res = new GoogleAuthorizationCodeTokenRequest(new NetHttpTransport(), new JacksonFactory(),
-					CLIENT_ID, 
-		  		      CLIENT_SECRET, 
-		  		      authorizationCode,
-		  		      REDIRECT_URL).setGrantType("authorization_code").execute();
-		              
-		} catch (IOException ioe) {
-			
-			System.out.println( "in io cache"+ioe.getMessage());
-		  ioe.printStackTrace();
-		  return null;
-		  
-		}
 		
 		
-		if(res!=null)
-			{
-				
-				System.out.println("response. access token..."+res.getAccessToken());
-				System.out.println("refresh Token...."+res.getRefreshToken());
-				System.out.println("Expires IN...."+res.getExpiresInSeconds());
-				System.out.println("Token Type:::"+res.getTokenType());
-				
-			}
-		
-		System.out.println("Creating credential...");
-		
-		return res;
-		}
-		public GoogleTokenResponse getNewToken(String refreshToken) throws IOException
-		{ String token="";
-//		System.out.println("GoogleRefreshTokenRequest...");
-//		GoogleTokenResponse tokenresponse= new GoogleRefreshTokenRequest(new NetHttpTransport(),new  JacksonFactory() , refreshToken, CLIENT_ID, CLIENT_SECRET).execute(); 
-//	
-//			return tokenresponse;
-		return null;
-			
-		}
-		public void storeData(GoogleCredential googleCredential)
-		{
-			System.out.println("Credentials stored::");
-			System.out.println("loading Data::::");
-			//System.out.println((loadData(new GoogleCredential())).getRefreshToken());
-			
-		}
-		public GoogleCredential loadData(GoogleCredential googleCredential)
-		{
-			 //CredentialStore credentialStore=new AppEngineCredentialStore();
-			//credentialStore.load(USER_ID,googleCredential);
-			System.out.println("googleCredential  loaded  acces token::"+googleCredential.getAccessToken());
-			return googleCredential;
-		}
 		public void gaQurey(GoogleTokenResponse response,String accessToken,String dateFrom,String dateTo,boolean flag,ArrayList<GaData> list,String dimensions, String tableId, String filter, String month)
 		{
 			System.out.println( response+":"+ accessToken+":"+ dateFrom+":"+ dateTo+":"+ flag+":"+ list+":"+ dimensions+":"+ tableId+":"+ filter);
@@ -133,18 +67,7 @@ public class Authenticate
 			try
 			{
 			 credential=new GoogleCredential().setAccessToken(accessToken);
-			//credential=(GoogleCredential)getOAuth2Credential(response);
-			
-			 
-//			 if(!flag)
-//			 {if(credential.getRefreshToken()!=null)
-//				 storeData(credential);
-//			 }
-			 
-//			 Analytics analytics = Analytics.Builder(HTTP_TRANSPORT, JSON_FACTORY,credential)
-//				      .setHttpRequestInitializer(credential)
-//				      .setApplicationName(APPLICATION_NAME)
-//				      .build();
+		 
 			 Analytics analytics=getAnalayticsObject(accessToken);
 			 
 			
@@ -310,41 +233,6 @@ public class Authenticate
 			 return null;
 		}
 		
-//		private static GoogleCredential getOAuth2Credential(GoogleTokenResponse tokenResponse) throws Exception {
-//
-//		    // Create the OAuth2 credential with custom refresh listener.
-//		    GoogleCredential credential = new GoogleCredential.Builder()
-//		        .setTransport(new NetHttpTransport())
-//		        //.setJsonFactory(new JacksonFactory())
-//		        .setClientSecrets(CLIENT_ID, CLIENT_SECRET)
-//		        .addRefreshListener(new CredentialRefreshListener() {
-//		          public void onTokenResponse(Credential credential, TokenResponse tokenResponse) {
-//		            // Handle success.
-//		            System.out.println("Credential was refreshed successfully.");
-//		          }
-//
-//		          public void onTokenErrorResponse(Credential credential,
-//		              TokenErrorResponse tokenErrorResponse) {
-//		            // Handle error.
-//		            System.err.println("Credential was not refreshed successfully. "
-//		                + "Redirect to error page or login screen.");
-//		          }
-//		        })
-//
-//		        // You can also add a credential store listener to have credentials
-//		        // stored automatically.
-//		        //.addRefreshListener(new CredentialStoreRefreshListener(userId, credentialStore))
-//		        .build();
-//
-//		    // Set authorized credentials.
-//		    credential.setFromTokenResponse(tokenResponse);
-//
-//		    // Though not necessary when first created, you can manually refresh the
-//		    // token, which is needed after 60 minutes.
-//		    credential.refreshToken();
-//
-//		    return credential;
-//		  }
 
 		public String  updateAccessTokenWithResfreshToken(String refreshToken) {		
 			

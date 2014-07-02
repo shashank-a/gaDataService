@@ -76,25 +76,45 @@ import com.util.CsvUtil;
 
 import java.beans.*;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ActionServlet.
+ */
 @Controller
 public class ActionServlet {
 	
 	
+	/** The Constant CLIENT_ID. */
 	final static String CLIENT_ID = "171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com";
-	final static String CLIENT_SECRET = "UpM_LVYRCLogNP4TTXIUg94a";
-	final static String REDIRECT_URL = "http://www.gadataservice.appspot.com/oauth2callback.do";
-	final static String SCOPE="https://www.googleapis.com/auth/analytics.readonly";
-	final static String APPLICATION_NAME="GA Web Service";
-	final static String USER_ID="shashank.ashokkumar@a-cti.com";
-	static  String TABLE_ID = "56596375";
 	
+	/** The Constant CLIENT_SECRET. */
+	final static String CLIENT_SECRET = "UpM_LVYRCLogNP4TTXIUg94a";
+	
+	/** The Constant REDIRECT_URL. */
+	final static String REDIRECT_URL = "http://www.gadataservice.appspot.com/oauth2callback.do";
+	
+	/** The Constant SCOPE. */
+	final static String SCOPE="https://www.googleapis.com/auth/analytics.readonly";
+	
+	/** The Constant mLogger. */
 	private static final Logger mLogger = Logger.getLogger(ActionServlet.class.getPackage().getName());
+	
+	/** The appcachemanager. */
 	AppCacheManager appcachemanager= new AppCacheManager();
+	
+	/** The resource bundle. */
 	ResourceBundle resourceBundle= ResourceBundle.getBundle("GaReportConstant");
 	
 	
 
 	
+	/**
+	 * Oauth2callback.
+	 *  Call Back method for google O auth 
+	 *  this method is also responsible for storing refresh token in Datastore 
+	 * @param request the request
+	 * @param res the res
+	 */
 	@ResponseBody
 	@RequestMapping("/oauth2callback.do")
 	public void oauth2callback(HttpServletRequest request, HttpServletResponse res)
@@ -138,6 +158,13 @@ public class ActionServlet {
 	
 
 	
+	/**
+	 * Gets the auth code.
+	 *NOt being used
+	 * @param req the req
+	 * @param res the res
+	 * @return the auth code
+	 */
 	public String  getAuthCode(HttpServletRequest req,HttpServletResponse res) 
 	{	
 		String redirectUri="http://www.gadataservice.appspot.com/oauth2callback.do";
@@ -194,6 +221,14 @@ public class ActionServlet {
 	
 	
 	
+	/**
+	 * Gets the event details.
+	 *
+	 * @param req the req
+	 * @param res the res
+	 * @return the event details
+	 * @throws ClassNotFoundException the class not found exception
+	 */
 	@RequestMapping("/getEventDetails.do")
 	public String getEventDetails(HttpServletRequest req,HttpServletResponse res) throws ClassNotFoundException
 	{
@@ -269,6 +304,13 @@ public class ActionServlet {
 		
 	}
 	
+	/**
+	 * Redirector.
+	 *
+	 * @param req the req
+	 * @param res the res
+	 * @return the string
+	 */
 	@RequestMapping("/redirector.do")
 	public String redirector(HttpServletRequest req,HttpServletResponse res)
 	{
@@ -284,6 +326,13 @@ public class ActionServlet {
 			
 	}
 	
+	/**
+	 * Gets the csv data.
+	 *
+	 * @param req the req
+	 * @param res the res
+	 * @return the csv data
+	 */
 	@ResponseBody
 	@RequestMapping("/getCsvData.do")
 	public void getCsvData(HttpServletRequest req,HttpServletResponse res)
@@ -348,6 +397,13 @@ public class ActionServlet {
 	
 	
 	
+	/**
+	 * Gets the cache data.
+	 *
+	 * @param req the req
+	 * @param res the res
+	 * @return the cache data
+	 */
 	@RequestMapping("/getDSData.do")
 	public void getCacheData(HttpServletRequest req,HttpServletResponse res)
 	{
@@ -383,9 +439,21 @@ public class ActionServlet {
 		
 	}
 
+    /**
+     * Prints the stack trace.
+     *
+     * @param t the t
+     */
     public static void printStackTrace(Throwable t) {
 	mLogger.error(getStackTrace(t));
     }
+    
+    /**
+     * Gets the stack trace.
+     *
+     * @param t the t
+     * @return the stack trace
+     */
     public static String getStackTrace(Throwable t)
     {
         StringWriter sw = new StringWriter();
@@ -396,91 +464,15 @@ public class ActionServlet {
         return sw.toString();
     }
     
-    @RequestMapping("/getJsonData.do")
-    @ResponseBody
-	public void getJsonData(HttpServletRequest req,HttpServletResponse res)
-	{
-		String dateFrom=req.getParameter("dateFrom");
-		
-			try {
-				
-				System.out.println("Cron JOb Triggered @"+System.currentTimeMillis());
-				System.out.println("target->> /get JSOn Data.do ");
-				String date=null;
-				if(dateFrom==null)
-				{Calendar cal = Calendar.getInstance();
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				sdf.setTimeZone( TimeZone.getTimeZone( "PST8PDT" ) );
-				System.out.println(sdf.format(cal.getTime())+"::timeZone::"+sdf.getTimeZone());
-				date=(sdf.format(cal.getTime())).toString();
-				}
-				else
-				{
-					date =dateFrom;
-				}
-				
-				String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
-				
-				GaData gaData=null;
-				ArrayList<ArrayList<?>> rowData=null;
-				ArrayList<String> gaJson=null;
-				int z=0;
-					
-						//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
-						ArrayList<GaData> list=new ArrayList<GaData>();
-						Authenticate  authenticate =new Authenticate();
-						
-						String temptoken=(authenticate.loadData(new GoogleCredential())).getRefreshToken();
-						
-							GoogleTokenResponse temp=(GoogleTokenResponse)authenticate.getNewToken(temptoken);
-							System.out.println(" new token response fetched from GoogleRefreshTokenRequest "+temp.getAccessToken());
-							authenticate.gaQurey(temp,temp.getAccessToken(), date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
-							System.out.println("Ga Data --ArrayList");
-							System.out.println(list.size());
-						
-						if(list.size()>0)
-						{	
-							rowData=new ArrayList<ArrayList<?>>();
-								//gaJson=new ArrayList<String>();
-						
-							while(z<list.size())
-							{
-								gaData=list.get(z);
-								
-								if(gaData!=null  & gaData.getRows()!=null)
-								{
-								
-									z++;
-									ArrayList<ArrayList<String>> dataSet=new ArrayList(gaData.getRows());
-									rowData.addAll(dataSet);
-									dataSet=null;
-								}
-								
-							}
-							System.out.println("Row Data Size::"+rowData.size());
-							
-							//res.getWriter().println(GaDatastoreService.convertObjectToJson(rowData).toString());
-						}
-						else{
-								System.out.println("NO data Fetched");
-						}
-						
-						z=0;
-				
-			
-			System.out.println("fetching the data from cache");
-			
-			
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-	}	
     
+    
+    /**
+     * Gets the batch data.
+     *
+     * @param req the req
+     * @param res the res
+     * @return the batch data
+     */
     @RequestMapping("/getBatchData.do")
     @ResponseBody
     public void getBatchData(HttpServletRequest req,HttpServletResponse res)
@@ -576,6 +568,14 @@ public class ActionServlet {
 	
     }
     
+    /**
+     * Gets the batch csv.
+     *
+     * @param req the req
+     * @param res the res
+     * @return the batch csv
+     * @throws JSONException the jSON exception
+     */
     @RequestMapping("/getBatchCSV.do")
     @ResponseBody
     public void getBatchCSV(HttpServletRequest req,HttpServletResponse res) throws org.json.JSONException
@@ -618,6 +618,15 @@ public class ActionServlet {
     	
     
     }
+    
+    /**
+     * Gets the agent details.
+     *
+     * @param req the req
+     * @param res the res
+     * @return the agent details
+     * @throws JSONException the jSON exception
+     */
     @RequestMapping("/getAgentDetails.do")
     @ResponseBody
     public void getAgentDetails(HttpServletRequest req,HttpServletResponse res) throws org.json.JSONException
@@ -650,6 +659,14 @@ public class ActionServlet {
     	
     }
     
+    /**
+     * Gets the key value.
+     *
+     * @param req the req
+     * @param res the res
+     * @return the key value
+     * @throws JSONException the jSON exception
+     */
     @RequestMapping("/getKeyValue.do")
     @ResponseBody
     public void getKeyValue(HttpServletRequest req,HttpServletResponse res) throws org.json.JSONException
@@ -676,6 +693,13 @@ public class ActionServlet {
     	
     }
     
+    /**
+     * Send error message.
+     *
+     * @param req the req
+     * @param res the res
+     * @throws JSONException the jSON exception
+     */
     @RequestMapping("/sendErrorEmail.do")
     @ResponseBody
     public void sendErrorMessage(HttpServletRequest req,HttpServletResponse res) throws org.json.JSONException
@@ -688,7 +712,7 @@ public class ActionServlet {
     	
     	try {
     		AnalyticsMailer am=new AnalyticsMailer();
-			am.initMail("",testMessage,"","shashank.ashokkumar@a-cti.com","GA Exception","","", null);
+			am.initMail("",testMessage,"",resourceBundle.getString("errorMail").toString(),"GA Exception","","", null);
 			
 			res.setCharacterEncoding("UTF-8");
 			res.getWriter().println("Mail Sent");
@@ -700,6 +724,14 @@ public class ActionServlet {
     	
    }
     
+	/**
+	 * Gets the gA service.
+	 *   This method can be used to add new service account for reporting service.
+	 *   It is recommended to use a common dev account for this service  which is having access to all the analytics application.
+	 * @param req the req
+	 * @param res the res
+	 * @return the gA service
+	 */
 	@RequestMapping("/getGAService.do")
 	public void getGAService(HttpServletRequest req,HttpServletResponse res)
 	{String redirectString="";
