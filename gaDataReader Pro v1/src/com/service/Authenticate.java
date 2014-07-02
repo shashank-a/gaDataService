@@ -276,7 +276,7 @@ public class Authenticate
 //		    	//log.info("credentil accesstoken"+credential.getAccessToken());
 		    	 analytics = new Analytics.Builder(HTTP_TRANSPORT,JSON_FACTORY,credential).setApplicationName(APPLICATION_NAME).build();
 		    	 
-		    	//log.info("Analytics obj"+analytics.getRootUrl()+""+analytics.getBaseUrl());
+		    	
 		    	credential = null;
 		    	return analytics;
 		    	

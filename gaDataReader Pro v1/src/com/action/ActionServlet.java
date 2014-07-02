@@ -465,7 +465,6 @@ public class ActionServlet {
     }
     
     
-    
     /**
      * Gets the batch data.
      *
@@ -747,7 +746,6 @@ public class ActionServlet {
 	   		  	redirectString="https://accounts.google.com/o/oauth2/auth?client_id="+"171068777204-uh3o3umebclqgdvd030ojm939l4rf3mr.apps.googleusercontent.com"+"&redirect_uri="+redirectUri+"&response_type=code&scope=https://www.googleapis.com/auth/analytics.readonly&access_type=offline&approval_prompt=force";
 	   		  	System.out.println("redirect URI::::"+redirectString);
 	   		 	res.sendRedirect(redirectString);
-    			
     			
     			HashMap hm=null;
     		if(hm!=null || hm.get("refresh_token")!=null)
