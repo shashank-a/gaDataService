@@ -25,13 +25,37 @@ import com.google.api.client.util.Base64;
 import com.util.DataStoreManager;
 import com.util.StringUtil;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class GaReportProcessor.
+ */
 public class GaReportProcessor {
+	
+	/** The Constant mLogger. */
 	private static final Logger mLogger = Logger.getLogger(GaReportProcessor.class.getPackage().getName());
 	
 	
 	
+	/**
+	 * Gets the unique dimension from ga data.
+	 *
+	 * @param rowData the row data
+	 * @param index the index
+	 * @return the unique dimension from ga data
+	 */
 	public HashSet getUniqueDimensionFromGAData (ArrayList<ArrayList<?>> rowData,int index)
 	{
+		/**
+		 * Dimension indexes
+		 * 1:accountNumber||AccountName
+		 * 2.Action
+		 * 3.AgentEmail
+		 * 4.ConnId or 'Fetch' in case of account Fetch
+		 * 5.IncomingANI
+		 * 6.TimeStamp
+		 * 7.totalValue // total value here is not considered for any calculation.
+		 * 
+		 * */
 		//LinkedHashMap <String,String> hm=new LinkedHashMap<String,String>();
 		HashSet <String> hs= new HashSet<String>();
 		
@@ -45,6 +69,16 @@ public class GaReportProcessor {
 		return hs;
 	}
 	
+	/**
+	 * Filter data by dimension index and provided value.
+	 *for eg:
+	 *filterDataByDimension(jsonData,'shashank.ashokkumar@a-cti.com',2)
+	 * This method will return all the records in raw json with value 'shashank.ashokkumar@a-cti.com' at index 2 of the array.
+	 * @param rowData the row data
+	 * @param value the value
+	 * @param index the index
+	 * @return the array list
+	 */
 	public ArrayList<ArrayList<?>> filterDataByDimension(ArrayList<ArrayList<?>> rowData,String value,int index)
 	{
 		System.out.println("inside filterDataByDimension:: "+value);
@@ -75,6 +109,13 @@ public class GaReportProcessor {
 		return filteredList;
 	}
 	
+	/**
+	 * Escape ga data.
+	 *
+	 * @param rowData the row data
+	 * @param index the index
+	 * @return the array list
+	 */
 	public ArrayList<ArrayList<?>> escapeGAData(ArrayList<ArrayList<?>> rowData,int index)
 	{ArrayList<ArrayList<?>> testArray=new ArrayList<ArrayList<?>>(); 
 		for(ArrayList rowvalue:rowData)
@@ -94,6 +135,15 @@ public class GaReportProcessor {
 	}
 	
 	
+	/**
+	 * Gets the agent detail report.
+	 *
+	 * @param rowData the row data
+	 * @return the agent detail report
+	 * @throws JsonGenerationException the json generation exception
+	 * @throws JsonMappingException the json mapping exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public LinkedHashMap<String, HashMap> getAgentDetailReport(ArrayList<ArrayList<?>> rowData) throws JsonGenerationException, JsonMappingException, IOException
 	{
 		
@@ -133,6 +183,12 @@ public class GaReportProcessor {
 	}
 	
 
+    /**
+     * Gets the stack trace.
+     *
+     * @param t the t
+     * @return the stack trace
+     */
     public static String getStackTrace(Throwable t)
     {
         StringWriter sw = new StringWriter();
@@ -144,10 +200,20 @@ public class GaReportProcessor {
     }
 
 
+    /**
+     * Prints the stack trace.
+     *
+     * @param t the t
+     */
     public static void printStackTrace(Throwable t) {
 	mLogger.error(getStackTrace(t));
     }
     
+    /**
+     * Prints the account data.
+     *
+     * @param accountDetails the account details
+     */
     public void printAccountData(ArrayList<AccountDetails> accountDetails)
     {	
     	for(AccountDetails acc:accountDetails)
@@ -159,12 +225,24 @@ public class GaReportProcessor {
     
     
     
+    /**
+     * Agent action report.
+     *
+     * @param jsonData the json data
+     * @return the array list
+     * @throws JsonGenerationException the json generation exception
+     * @throws JsonMappingException the json mapping exception
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     public ArrayList AgentActionReport(ArrayList<ArrayList<?>> jsonData) throws JsonGenerationException, JsonMappingException, IOException
     {
     	
-
-    		HashSet<String> uniqueAgentMap=getUniqueDimensionFromGAData(jsonData,2);
-		  HashSet<String> uniqueActionSet=getUniqueDimensionFromGAData(jsonData,1);
+    	 /*
+    	  * Fetching unique agent email and unique actions from rawData pulled from DataStore
+        **/
+    	  HashSet<String> uniqueAgentMap=getUniqueDimensionFromGAData(jsonData,2);
+    	  HashSet<String> uniqueActionSet=getUniqueDimensionFromGAData(jsonData,1);
+    	  
 		  HashSet<String> uniqueAgentSet=null;
 		  
 		  
@@ -173,10 +251,12 @@ public class GaReportProcessor {
 		  ArrayList agentActionDetils= new ArrayList();
 		  List columnName=null;
 		  
-		  uniqueActionSet.add("Account Load (IB)");
-		  uniqueActionSet.add("Account Load (NOID)");
-		  uniqueActionSet.add("Account Load (CI)");
-			 uniqueActionSet.add("CallConclusion (IB)");
+		  //adding additional action as Total of Inbound(IB) , Fetch (NOID), CustomInteraction(CI) for various actions performed.
+		  //This feature was added on request of performance management team
+		  	uniqueActionSet.add("Account Load (IB)");
+		  	uniqueActionSet.add("Account Load (NOID)");
+		  	uniqueActionSet.add("Account Load (CI)");
+			uniqueActionSet.add("CallConclusion (IB)");
 			uniqueActionSet.add("CallConclusion (NOID)");
 			uniqueActionSet.add("CallConclusion (CI)");
 			uniqueActionSet.add("Send (IB)");
@@ -186,6 +266,7 @@ public class GaReportProcessor {
 			uniqueActionSet.add("Annotation/close(NOID)");
 			uniqueActionSet.add("Annotation/close(CI)");
 			//added for DeadAIR call
+			//IT requested for this feature
 			uniqueActionSet.add("CallConclusion(DAC)");
 			
 		  //  
@@ -200,16 +281,18 @@ public class GaReportProcessor {
 			{
 				rowObj.put(action.toString(), 0);
 			}
+			
+			//fetching all the records for one agent as agentDetails
 			ArrayList<ArrayList<?>> agentDetails=filterDataByDimension(jsonData,agentInitial,2);
 			
-			
-			
+			//adding up action count from agentDetails
 			for(ArrayList<?> row:agentDetails)
 			{
 				{
 					
 					//rowObj[row[1]]=rowObj[row[1]]+1;
 					rowObj.put(row.get(1).toString(), Integer.parseInt(rowObj.get(row.get(1).toString()).toString())+1);
+					//filtering data on the basis of connid for inbound call
 					if(row.get(3).toString().contains("us-cs-telephony"))
 						{
 						if(row.get(1).equals("CallConclusion"))
@@ -226,7 +309,7 @@ public class GaReportProcessor {
 						else if(row.get(1).equals("Annotation/close"))
 							rowObj.put("Annotation/close(IB)",Integer.parseInt(rowObj.get("Annotation/close(IB)").toString())+1);
 							
-					}
+					}//filtering data on the basis of connid for Fetch
 					else if(row.get(3).toString().equals("Fetch"))
 					{
 						if(row.get(1).equals("CallConclusion"))
@@ -241,8 +324,7 @@ public class GaReportProcessor {
 							{rowObj.put("Annotation/close(NOID)",Integer.parseInt(rowObj.get("Annotation/close(NOID)").toString())+1);
 							}
 
-					}
-					
+					}//filtering data for Custom Interaction
 				else
 					{
 					if(row.get(1).equals("CallConclusion"))
@@ -259,10 +341,7 @@ public class GaReportProcessor {
 						{rowObj.put("Annotation/close(CI)",Integer.parseInt(rowObj.get("Annotation/close(CI)").toString())+1);
 						}
 				
-				}
-					
-
-					
+				}					
 				}
 			}
 			
@@ -273,7 +352,9 @@ public class GaReportProcessor {
 			agentData.add(maptoArray(rowObj));
 			
 			}
+		//adding first row as column name
 		agentActionDetils.add(columnName);
+		//appending action count to the table.
 		agentActionDetils.addAll(agentData);
 		
 		
@@ -281,6 +362,12 @@ public class GaReportProcessor {
 				
 		}
     
+    /**
+     * Mapto array.
+     *
+     * @param hm the hm
+     * @return the array list
+     */
     public ArrayList maptoArray(TreeMap hm)
     {
     	ArrayList arr= new ArrayList();
@@ -292,6 +379,13 @@ public class GaReportProcessor {
 		return arr;
     	
     }
+    
+    /**
+     * Reorder agent report.
+     *
+     * @param agentActionDetils the agent action detils
+     * @return the array list
+     */
     public ArrayList<ArrayList<?>> reorderAgentReport(ArrayList agentActionDetils)
     {
     	int index=0;
