@@ -32,7 +32,7 @@ public class AnalyticsMailer {
 		
 		try {
 		    Message msg = new MimeMessage(session);
-		    msg.setFrom(new InternetAddress("shashank.ashokkumar@a-cti.com", "DataService Mailer"));
+		    msg.setFrom(new InternetAddress("sb_batch@a-cti.com", "DataService Mailer"));
 //		    msg.addRecipient(Message.RecipientType.TO,
 //		     new InternetAddress("shashanksworld@gmail.com", "Mr. Shashank"));
 		    if(to!=null&&!to.equals("") )
