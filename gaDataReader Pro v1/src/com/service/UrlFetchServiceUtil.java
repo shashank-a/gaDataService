@@ -27,28 +27,30 @@ public class UrlFetchServiceUtil {
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
-			connection.setRequestMethod(methodName);
-			connection.setReadTimeout(60000);
-			connection.setConnectTimeout(60000);
+			connection.setRequestMethod(methodName);//post method
+			connection.setReadTimeout(60000);//one second
+			connection.setConnectTimeout(60000);//one second
 			if(contentType != null && !contentType.isEmpty()){
-				connection.setRequestProperty("Content-Type",contentType);
+				connection.setRequestProperty("Content-Type",contentType);//setting contenttype
 			}
 			if(header!=null )
 			{	
 				for(String k:header.keySet())
 				{System.out.println("header key::"+k.toString());
-					connection.setRequestProperty(k.toString(),header.get(k).toString());
+					connection.setRequestProperty(k.toString(),header.get(k).toString());// setting request header
 				}
 			}
 			if(params != null && !params.isEmpty()){
-				OutputStreamWriter writers = new OutputStreamWriter(connection.getOutputStream());
-				writers.write(params);
+				OutputStreamWriter writers = new OutputStreamWriter(connection.getOutputStream()); //using connection object getting outputstream 
+				writers.write(params); //adding payload to outputstream object.
+				//payload contains
+				//String payload ="client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&refresh_token="+refreshToken+"&grant_type=refresh_token";
 				writers.flush();
 			}
 
-			System.out.println(";-----; response code " + connection.getResponseCode());
+			System.out.println(";-----; response code " + connection.getResponseCode());// getting status code for connection 
 
-			if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){
+			if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){ //
 				BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
 				String responseString = "";

@@ -92,6 +92,7 @@ public class GAScheduler {
 				Calendar cal = Calendar.getInstance();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			//cal.roll(Calendar.DATE, false);
+			//Getting previous date date
 			cal.add(Calendar.DATE, -1);
 			System.out.println(sdf.format(cal.getTime()) + "::timeZone::"
 					+ sdf.getTimeZone());
@@ -102,16 +103,22 @@ public class GAScheduler {
 				date =dateFrom;
 			}
 			
+			//creating dimension
 			String dimensions="ga:eventCategory,ga:eventAction,ga:eventLabel,ga:customVarValue1,ga:customVarValue2,ga:customVarValue3,ga:customVarValue4";
 			String accessToken="";
 			GaData gaData=null;
 			ArrayList<ArrayList<?>> rowData=null;
 			ArrayList<String> gaJson=null;
 			int z=0;
+			//Creating object to GadatastoreService class
 			GaDatastoreService datastoreService= new GaDatastoreService();
+			//Creating object to Authenticate class		
 			Authenticate  authenticate =new Authenticate();
+			//Getting email
 			System.out.println("access GA API using::"+resourceBundle.getString("email").toString());
-			String jsonData=new GaDatastoreService().getTempData(resourceBundle.getString("email").toString(),"refresh_token");
+			 //key and dimension for this email as json 
+			String jsonData=new GaDatastoreService().getRefreshToken(resourceBundle.getString("email").toString(),"refresh_token");
+			 //datastoreService.convertJsonToMap() takes json and converts into hashmap object 
     		HashMap hm=datastoreService.convertJsonToMap(jsonData);
     		if(hm.get("refresh_token")!=null)
     		{System.out.println("refresh Toekn found");
@@ -124,6 +131,8 @@ public class GAScheduler {
     		}
 					//System.out.println("Filter seelcted for Ga Query"+filter+"for table Id"+tableId);
 					ArrayList<GaData> list=new ArrayList<GaData>();
+					// GaData is used to parse HttpRequest as a json
+					//list(ArrayList) contains HttpRequest object as json
 						 
 						authenticate.gaQurey(null,accessToken, date, date,true,list,dimensions, resourceBundle.getString("SBLive"),"", null );
 						System.out.println(list.size());
@@ -358,7 +367,7 @@ public void fetchV2Outbound(HttpServletRequest req,HttpServletResponse res)
 				String accessToken="";
 		    	String processedData=null;
 		    	System.out.println("access GA API using::"+resourceBundle.getString("email").toString());
-		    	String jsonData=new GaDatastoreService().getTempData(resourceBundle.getString("email").toString(),"refresh_token");
+		    	String jsonData=new GaDatastoreService().getRefreshToken(resourceBundle.getString("email").toString(),"refresh_token");
 	    		GaDatastoreService datastoreService=null;
 				HashMap hm=datastoreService.convertJsonToMap(jsonData);
 	    		if(hm.get("refresh_token")!=null)

@@ -21,12 +21,12 @@ import com.google.api.client.util.Key;
 import com.google.api.client.util.Lists;
 import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.storage.Storage;
-import com.google.api.services.storage.StorageScopes;
-import com.google.api.services.storage.model.Bucket;
-import com.google.api.services.storage.model.ObjectAccessControl;
-import com.google.api.services.storage.model.Objects;
-import com.google.api.services.storage.model.StorageObject;
+//import com.google.api.services.storage.Storage;
+//import com.google.api.services.storage.StorageScopes;
+//import com.google.api.services.storage.model.Bucket;
+//import com.google.api.services.storage.model.ObjectAccessControl;
+//import com.google.api.services.storage.model.Objects;
+//import com.google.api.services.storage.model.StorageObject;
 
 
 
@@ -66,49 +66,49 @@ public class GCSManager {
 
 	  /** Global instance of this sample's settings. */
 	  
-	  private static Storage storage;
-	  
-	  public String accessBucket(Storage client) 
-	  {
-		  System.out.println("accessing buckeyt");
-		  try {
-			  System.out.println("getting bucket name");
-			Storage.Buckets.Get getBucket = client.buckets().get(BUCKET_NAME);
-			System.out.println("setting bucket name"+getBucket);
-			getBucket.setProjection("full");
-			System.out.println("befiore Executing");
-			  Bucket bucket = getBucket.execute();
-			  System.out.println("name: " + BUCKET_NAME);
-			  System.out.println("location: " + bucket.getLocation());
-			  System.out.println("timeCreated: " + bucket.getTimeCreated());
-			  System.out.println("owner: " + bucket.getOwner());
-			  
-			  // List the contents of the bucket.
-			  Storage.Objects.List listObjects = client.objects().list(BUCKET_NAME);
-			  com.google.api.services.storage.model.Objects objects;
-			  do {
-			    objects = listObjects.execute();
-			    for (StorageObject object : objects.getItems()) {
-			      System.out.println(object.getName() + " (" + object.getSize() + " bytes)");
-			    }
-			    listObjects.setPageToken(objects.getNextPageToken());
-			  } while (null != objects.getNextPageToken());
-		} catch (IOException ioe)
-		{
-			System.out.println("IOE"+ioe);
-		}
-		  catch (Exception e) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception caught");
-			e.printStackTrace();
-		}
-		
-	      
-	      return null;
-	  }
-
-
-	  	
+//	  private static Storage storage;
+//	  
+//	  public String accessBucket(Storage client) 
+//	  {
+//		  System.out.println("accessing buckeyt");
+//		  try {
+//			  System.out.println("getting bucket name");
+//			Storage.Buckets.Get getBucket = client.buckets().get(BUCKET_NAME);
+//			System.out.println("setting bucket name"+getBucket);
+//			getBucket.setProjection("full");
+//			System.out.println("befiore Executing");
+//			  Bucket bucket = getBucket.execute();
+//			  System.out.println("name: " + BUCKET_NAME);
+//			  System.out.println("location: " + bucket.getLocation());
+//			  System.out.println("timeCreated: " + bucket.getTimeCreated());
+//			  System.out.println("owner: " + bucket.getOwner());
+//			  
+//			  // List the contents of the bucket.
+//			  Storage.Objects.List listObjects = client.objects().list(BUCKET_NAME);
+//			  com.google.api.services.storage.model.Objects objects;
+//			  do {
+//			    objects = listObjects.execute();
+//			    for (StorageObject object : objects.getItems()) {
+//			      System.out.println(object.getName() + " (" + object.getSize() + " bytes)");
+//			    }
+//			    listObjects.setPageToken(objects.getNextPageToken());
+//			  } while (null != objects.getNextPageToken());
+//		} catch (IOException ioe)
+//		{
+//			System.out.println("IOE"+ioe);
+//		}
+//		  catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			System.out.println("Exception caught");
+//			e.printStackTrace();
+//		}
+//		
+//	      
+//	      return null;
+//	  }
+//
+//
+//	  	
 
 }
 	  

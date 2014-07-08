@@ -313,7 +313,7 @@ public class ActionServlet {
 	 */
 	@RequestMapping("/redirector.do")
 	public String redirector(HttpServletRequest req,HttpServletResponse res)
-	{
+	{  System.out.println("begining of redirector");
 		
 		String page=req.getParameter("page");
 		System.out.println("page::"+page);
@@ -322,6 +322,7 @@ public class ActionServlet {
 		{
 			return page;
 		}
+		System.out.println("redirecting to mainlayout");
 		return "mainLayout";	
 			
 	}

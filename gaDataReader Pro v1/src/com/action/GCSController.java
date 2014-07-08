@@ -17,8 +17,8 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.analytics.Analytics;
-import com.google.api.services.storage.Storage;
-import com.google.api.services.storage.Storage.Builder;
+//import com.google.api.services.storage.Storage;
+//import com.google.api.services.storage.Storage.Builder;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 import com.service.Authenticate;
 import com.service.GaDatastoreService;
@@ -92,7 +92,7 @@ public class GCSController {
     	try {
     		GaDatastoreService datastoreService= new GaDatastoreService();
     		//System.out.println("Calling refresh:::"+updateAccessTokenWithResfreshToken("1/y4LrLLimtZcMGFSHgJaM_9PP-WuudOQraUHf-MTTWNE"));
-    		String jsonData=new GaDatastoreService().getTempData("GACloudStorage","refresh_token_GCS");
+    		String jsonData=new GaDatastoreService().getRefreshToken("GACloudStorage","refresh_token_GCS");
     		
     		if(jsonData!=null)
     		{System.out.println("checkign json Structure");
@@ -102,7 +102,7 @@ public class GCSController {
 		    		
 		    			accessToken=updateAccessTokenWithResfreshToken(hm.get("refresh_token").toString());
 		    			System.out.println("accessToken");
-		    			Storage stg=createGCSObject(accessToken);
+		    			//Storage stg=createGCSObject(accessToken);
 		    			//(new GCSManager()).accessBucket(stg);
 		    			String url="https://www.googleapis.com/upload/storage/v1/b/gadataservice.appspot.com/o?uploadType=media&name=GAData";
 						String params="This is test Data to be sent";
@@ -131,25 +131,25 @@ public class GCSController {
 		} 
 	}
 	
-	 public Storage createGCSObject(String accessToken)
-	 { 
-		 Storage storage=null;
-		try {
-			GoogleCredential credential =null;
-				credential= new GoogleCredential.Builder().setClientSecrets(clientSecrets()).setJsonFactory(JSON_FACTORY).setTransport(HTTP_TRANSPORT).build();
-				credential.setAccessToken(accessToken);
-			 //Storage gcs= Storage.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
-			 Storage.Builder build = new Storage.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential);
-			 build.setApplicationName(APPLICATION_NAME);
-			 storage = build.build();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("problem in building GCS");
-		}
-		 
-		 return storage;
-	 }
+//	 public Storage createGCSObject(String accessToken)
+//	 { 
+//		 //Storage storage=null;
+//		/*try {
+//			GoogleCredential credential =null;
+//				credential= new GoogleCredential.Builder().setClientSecrets(clientSecrets()).setJsonFactory(JSON_FACTORY).setTransport(HTTP_TRANSPORT).build();
+//				credential.setAccessToken(accessToken);
+//			 //Storage gcs= Storage.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
+//			 Storage.Builder build = new Storage.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential);
+//			 build.setApplicationName(APPLICATION_NAME);
+//			 storage = build.build();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			System.out.println("problem in building GCS");
+//		}*/
+//		 
+//		 return storage;
+//	 }
 	 
 	 static public GoogleClientSecrets clientSecrets(){
 		 GoogleClientSecrets gcs=null;	

@@ -32,7 +32,7 @@ public class AnalyticsMailer {
 		
 		try {
 		    Message msg = new MimeMessage(session);
-		    msg.setFrom(new InternetAddress("shashank.ashokkumar@a-cti.com", "DataService Mailer"));
+		    msg.setFrom(new InternetAddress("solomon.mark@a-cti.com", "DataService Mailer"));
 //		    msg.addRecipient(Message.RecipientType.TO,
 //		     new InternetAddress("shashanksworld@gmail.com", "Mr. Shashank"));
 		    if(to!=null&&!to.equals("") )
@@ -45,6 +45,8 @@ public class AnalyticsMailer {
 		    if(msgPart!=null && !msgPart.equals(""))
 		    {	
 				//Body Part 1
+		    	
+		    	
 		    	MimeBodyPart attachment = new MimeBodyPart();
 				attachment.setFileName( filePrefix +date+ ".csv" );
 				attachment.setContent(msgPart , "application/csv" );

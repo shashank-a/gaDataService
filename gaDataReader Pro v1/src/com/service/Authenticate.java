@@ -250,7 +250,11 @@ public class Authenticate
 		        jsonObject.put("grant_type", "refresh_token");
 		        
 				String payload ="client_id="+CLIENT_ID+"&client_secret="+CLIENT_SECRET+"&refresh_token="+refreshToken+"&grant_type=refresh_token";
-
+                /*We got refersh token from resourse bundle. later we are supplying refershtoken to httpRequest method to get HttpRequest object
+                 * for accessing Google analytics */ 
+				//httpRequest method returns httpRequest object.
+				 //responseString contains refreshToken which is used for accessing the google Google analytics.
+				 
 		        String responseString = UrlFetchServiceUtil.httpRequest(tokenUrl, payload, "POST", "application/x-www-form-urlencoded", null);
 		        
 				System.out.println("got new accesss token"+responseString);

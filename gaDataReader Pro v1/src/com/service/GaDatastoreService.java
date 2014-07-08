@@ -298,7 +298,7 @@ public class GaDatastoreService
     		return "";
 	    }
 	    
-	    public String getTempData(String key, String dimension) throws JsonMappingException
+	    public String getRefreshToken(String key, String dimension) throws JsonMappingException
 	    {String jsonData="";
 	    	try {
 				

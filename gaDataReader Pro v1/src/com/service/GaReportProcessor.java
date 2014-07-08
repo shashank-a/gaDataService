@@ -236,13 +236,16 @@ public class GaReportProcessor {
      */
     public ArrayList AgentActionReport(ArrayList<ArrayList<?>> jsonData) throws JsonGenerationException, JsonMappingException, IOException
     {
-    	
+    	System.out.println("Inside AgentActionReport method()");
+    	System.out.println("Changes by solomon");
+    	System.out.println("Changes after emailid check");
     	 /*
     	  * Fetching unique agent email and unique actions from rawData pulled from DataStore
         **/
     	  HashSet<String> uniqueAgentMap=getUniqueDimensionFromGAData(jsonData,2);
+    	  //Calling getUniqueDimensionFromGAData method a parameter as jsonData. Two is 2nd index(AgentEmailId) 
     	  HashSet<String> uniqueActionSet=getUniqueDimensionFromGAData(jsonData,1);
-    	  
+    	//Calling getUniqueDimensionFromGAData method a parameter as jsonData. One is 1st index(AccountAction)
 		  HashSet<String> uniqueAgentSet=null;
 		  
 		  
@@ -271,12 +274,18 @@ public class GaReportProcessor {
 			
 		  //  
 		  ArrayList<String> uniqueAction=new ArrayList(Arrays.asList(uniqueActionSet.toArray()));
+		  //Converting uniqueActionSet to array and storing in Arraylist.
 		//ction.sort();
 		
+		  //Iterating every Agent emailid and storing in TreeMap
 		for(String agentInitial:uniqueAgentMap)
-		{
+		{ 
 			rowObj=new TreeMap<String,Object>();
-			rowObj.put("Agent Email", agentInitial);
+
+     		rowObj.put("Agent Email", agentInitial);
+
+			
+			
 			for(Object action:uniqueAction)
 			{
 				rowObj.put(action.toString(), 0);
@@ -388,8 +397,14 @@ public class GaReportProcessor {
      */
     public ArrayList<ArrayList<?>> reorderAgentReport(ArrayList agentActionDetils)
     {
+    	
+ 	
+    	
+    	
+    
     	int index=0;
     	index=((ArrayList)agentActionDetils.get(0)).indexOf("Agent Email");
+    	//System.out.println("checking index in recoderAgentReport::"+index);
     	ArrayList row =null;
     	
     	ArrayList<ArrayList<?>> orderedReport=new ArrayList<ArrayList<?>>();
@@ -398,6 +413,9 @@ public class GaReportProcessor {
     				String temp;
     				ArrayList a=(ArrayList)o;
     					temp=a.get(index).toString();
+    					//System.out.println("checking temp in reorderAgentReport::::"+temp);
+    			
+    					
     					a.remove(index);
     					row.add(temp);
     					row.addAll(a);
