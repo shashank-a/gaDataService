@@ -45,8 +45,7 @@ public class AnalyticsMailer {
 		    if(msgPart!=null && !msgPart.equals(""))
 		    {	
 				//Body Part 1
-		    	
-		    	
+		    		    	
 		    	MimeBodyPart attachment = new MimeBodyPart();
 				attachment.setFileName( filePrefix +date+ ".csv" );
 				attachment.setContent(msgPart , "application/csv" );
