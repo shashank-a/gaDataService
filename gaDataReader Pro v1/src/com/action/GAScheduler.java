@@ -289,7 +289,7 @@ public void agentActionEmailService(HttpServletRequest req,HttpServletResponse r
 				 if(csvData!=null && !csvData.equals(""))
 					 {
 					String cc="naresh.talluri@a-cti.com,performancemanagement@a-cti.com";
-					String bcc="shashank.ashokkumar@a-cti.com,ramanathan.arunachalam@a-cti.com,srinivasan.suriyanarayanan@a-cti.com,abilash.amarasekaran@a-cti.com";
+					String bcc="shashank.ashokkumar@a-cti.com,solomon.mark@a-cti.com,ramanathan.arunachalam@a-cti.com,srinivasan.suriyanarayanan@a-cti.com,abilash.amarasekaran@a-cti.com";
 					
 					
 					if(testEmail!=null && testEmail.equals("test"))
